@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: 
+Crawl-delay: 1
+
+Sitemap: https://letrezdraw.com/sitemap.xml
