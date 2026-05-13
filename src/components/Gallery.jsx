@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useDeferredValue } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { artworks as fallbackArtworks } from '../data/artworks';
@@ -14,6 +14,7 @@ const manifestUrl = () => `${import.meta.env.BASE_URL}artwork-manifest.json`.rep
 export const Gallery = () => {
   const [viewMode, setViewMode] = useState('slider');
   const [pieces, setPieces] = useState(fallbackArtworks);
+  const deferredPieces = useDeferredValue(pieces);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const containerRef = useRef(null);
@@ -94,6 +95,7 @@ export const Gallery = () => {
           delay: idx * 0.05
         });
       });
+      ScrollTrigger.refresh();
     }, root);
 
     return () => ctx.revert();
@@ -213,7 +215,7 @@ export const Gallery = () => {
               msOverflowStyle: 'none'
             }}
           >
-            {pieces.map((artwork) => (
+            {deferredPieces.map((artwork) => (
               <div
                 key={artwork.id}
                 className="gallery-card-item"
@@ -272,7 +274,7 @@ export const Gallery = () => {
             margin: '0 auto'
           }}
         >
-          <GalleryWeb artworks={pieces} onOpen={openArt} />
+          <GalleryWeb artworks={deferredPieces} onOpen={openArt} />
         </div>
       )}
 

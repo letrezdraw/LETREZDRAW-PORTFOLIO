@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo, memo } from 'react';
 import { pointer } from '../pointerStore';
 
 const MARGIN = 0.06;
@@ -71,7 +71,7 @@ function initNodes(artworks) {
   });
 }
 
-export const GalleryWeb = ({ artworks, onOpen }) => {
+export const GalleryWeb = memo(({ artworks, onOpen }) => {
   const wrapRef = useRef(null);
   const canvasRef = useRef(null);
   const nodesRef = useRef([]);
@@ -82,7 +82,14 @@ export const GalleryWeb = ({ artworks, onOpen }) => {
   const [tick, setTick] = useState(0);
 
   const n = artworks.length;
-  const bump = useCallback(() => setTick((x) => x + 1), []);
+  const tickCounterRef = useRef(0);
+  const bump = useCallback(() => {
+    tickCounterRef.current++;
+    // Only update state every 4 frames to reduce re-renders
+    if (tickCounterRef.current % 4 === 0) {
+      setTick((x) => x + 1);
+    }
+  }, []);
 
   if (nodesRef.current.length !== n) {
     nodesRef.current = n ? initNodes(artworks) : [];
@@ -243,7 +250,7 @@ export const GalleryWeb = ({ artworks, onOpen }) => {
         className="gallery-web__hint"
         style={{
           textAlign: 'center',
-          fontSize: '10px',
+          fontSize: '12px',
           color: 'var(--text-muted)',
           marginBottom: '12px',
           letterSpacing: '1px',
@@ -323,7 +330,7 @@ export const GalleryWeb = ({ artworks, onOpen }) => {
               >
                 <span className="gallery-web__ring" />
                 <span className="gallery-web__img-wrap">
-                  <img src={node.artwork.image} alt="" draggable={false} />
+                  <img src={node.artwork.imageThumb || node.artwork.image} alt="" draggable={false} loading="lazy" decoding="async" />
                 </span>
                 <span className="gallery-web__title">{node.artwork.title}</span>
               </button>
@@ -333,4 +340,4 @@ export const GalleryWeb = ({ artworks, onOpen }) => {
       </div>
     </div>
   );
-};
+});

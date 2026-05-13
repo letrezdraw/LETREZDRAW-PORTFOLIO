@@ -33,10 +33,10 @@ export const Navbar = ({ scrolled }) => {
       top: 0,
       left: 0,
       right: 0,
-      minHeight: '48px',
+      minHeight: '56px',
       height: 'auto',
-      paddingTop: '6px',
-      paddingBottom: '6px',
+      paddingTop: '12px',
+      paddingBottom: '12px',
       background: 'var(--nav-chrome)',
       backdropFilter: 'blur(8px)',
       borderBottom: scrolled ? '1px solid var(--border-active)' : '1px solid var(--border-color)',
@@ -44,15 +44,15 @@ export const Navbar = ({ scrolled }) => {
       alignItems: 'center',
       justifyContent: 'space-between',
       flexWrap: 'wrap',
-      rowGap: '8px',
-      paddingLeft: '48px',
-      paddingRight: '24px',
+      rowGap: '12px',
+      paddingLeft: '56px',
+      paddingRight: '32px',
       zIndex: 1100,
       transition: 'border-color 0.3s ease'
     }}>
       {/* Left - Archive ID */}
       <div style={{
-        fontSize: '11px',
+        fontSize: '13px',
         color: 'var(--text-primary)',
         fontWeight: 'bold',
         letterSpacing: '1px',
@@ -64,7 +64,7 @@ export const Navbar = ({ scrolled }) => {
       {/* Center - Nav Links */}
       <div style={{
         display: 'flex',
-        gap: '32px',
+        gap: '40px',
         alignItems: 'center',
         justifyContent: 'center',
         flex: '1 1 auto',
@@ -75,7 +75,7 @@ export const Navbar = ({ scrolled }) => {
             key={link}
             className="red-underline"
             style={{
-              fontSize: '11px',
+              fontSize: '13px',
               color: 'var(--text-secondary)',
               textTransform: 'uppercase',
               letterSpacing: '1px',
@@ -109,15 +109,15 @@ export const Navbar = ({ scrolled }) => {
       {/* Right - Signal and Time */}
       <div style={{
         display: 'flex',
-        gap: '24px',
+        gap: '32px',
         alignItems: 'center',
-        fontSize: '11px',
+        fontSize: '13px',
         color: 'var(--text-secondary)',
         textTransform: 'uppercase',
         letterSpacing: '1px',
         flexShrink: 0
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{
             width: '6px',
             height: '6px',

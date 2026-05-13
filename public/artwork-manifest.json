@@ -11,10 +11,18 @@
     "tools": [],
     "description": "",
     "commissionStatus": "OPEN",
-    "image": "ARTWORK/1%20Orangescape%20Character_Art/1.jpg",
-    "imageSecondary": "ARTWORK/1%20Orangescape%20Character_Art/2.jpg",
+    "image": "artwork/1 Orangescape Character_Art/1.jpg",
+    "imageThumb": "artwork/1 Orangescape Character_Art/1-thumb.jpg",
+    "imageWeb": "artwork/1 Orangescape Character_Art/1-web.jpg",
+    "imageHd": "artwork/1 Orangescape Character_Art/1-hd.jpg",
+    "imageSecondary": "artwork/1 Orangescape Character_Art/2.jpg",
     "extraImages": [
-      "ARTWORK/1%20Orangescape%20Character_Art/2.jpg"
+      {
+        "original": "artwork/1 Orangescape Character_Art/2.jpg",
+        "thumb": "artwork/1 Orangescape Character_Art/2-thumb.jpg",
+        "web": "artwork/1 Orangescape Character_Art/2-web.jpg",
+        "hd": "artwork/1 Orangescape Character_Art/2-hd.jpg"
+      }
     ]
   },
   {
@@ -29,7 +37,10 @@
     "tools": [],
     "description": "",
     "commissionStatus": "OPEN",
-    "image": "ARTWORK/2%20Crimson_Fan%20Character_Art/1.jpg",
+    "image": "artwork/2 Crimson_Fan Character_Art/1.jpg",
+    "imageThumb": "artwork/2 Crimson_Fan Character_Art/1-thumb.jpg",
+    "imageWeb": "artwork/2 Crimson_Fan Character_Art/1-web.jpg",
+    "imageHd": "artwork/2 Crimson_Fan Character_Art/1-hd.jpg",
     "imageSecondary": "",
     "extraImages": []
   },
@@ -45,10 +56,18 @@
     "tools": [],
     "description": "",
     "commissionStatus": "OPEN",
-    "image": "ARTWORK/3%20Andrew%20Character_Art/1.jpg",
-    "imageSecondary": "ARTWORK/3%20Andrew%20Character_Art/2.png",
+    "image": "artwork/3 Andrew Character_Art/1.jpg",
+    "imageThumb": "artwork/3 Andrew Character_Art/1-thumb.jpg",
+    "imageWeb": "artwork/3 Andrew Character_Art/1-web.jpg",
+    "imageHd": "artwork/3 Andrew Character_Art/1-hd.jpg",
+    "imageSecondary": "artwork/3 Andrew Character_Art/2.png",
     "extraImages": [
-      "ARTWORK/3%20Andrew%20Character_Art/2.png"
+      {
+        "original": "artwork/3 Andrew Character_Art/2.png",
+        "thumb": "artwork/3 Andrew Character_Art/2-thumb.jpg",
+        "web": "artwork/3 Andrew Character_Art/2-web.jpg",
+        "hd": "artwork/3 Andrew Character_Art/2-hd.jpg"
+      }
     ]
   },
   {
@@ -63,12 +82,30 @@
     "tools": [],
     "description": "",
     "commissionStatus": "OPEN",
-    "image": "ARTWORK/4%20Black%26Pink%20Character_Art/1.jpg",
-    "imageSecondary": "ARTWORK/4%20Black%26Pink%20Character_Art/2.jpg",
+    "image": "artwork/4 Black&Pink Character_Art/1.jpg",
+    "imageThumb": "artwork/4 Black&Pink Character_Art/1-thumb.jpg",
+    "imageWeb": "artwork/4 Black&Pink Character_Art/1-web.jpg",
+    "imageHd": "artwork/4 Black&Pink Character_Art/1.jpg",
+    "imageSecondary": "artwork/4 Black&Pink Character_Art/2.jpg",
     "extraImages": [
-      "ARTWORK/4%20Black%26Pink%20Character_Art/2.jpg",
-      "ARTWORK/4%20Black%26Pink%20Character_Art/3.jpg",
-      "ARTWORK/4%20Black%26Pink%20Character_Art/4.png"
+      {
+        "original": "artwork/4 Black&Pink Character_Art/2.jpg",
+        "thumb": "artwork/4 Black&Pink Character_Art/2.jpg",
+        "web": "artwork/4 Black&Pink Character_Art/2.jpg",
+        "hd": "artwork/4 Black&Pink Character_Art/2.jpg"
+      },
+      {
+        "original": "artwork/4 Black&Pink Character_Art/3.jpg",
+        "thumb": "artwork/4 Black&Pink Character_Art/3.jpg",
+        "web": "artwork/4 Black&Pink Character_Art/3.jpg",
+        "hd": "artwork/4 Black&Pink Character_Art/3.jpg"
+      },
+      {
+        "original": "artwork/4 Black&Pink Character_Art/4.png",
+        "thumb": "artwork/4 Black&Pink Character_Art/4.png",
+        "web": "artwork/4 Black&Pink Character_Art/4.png",
+        "hd": "artwork/4 Black&Pink Character_Art/4.png"
+      }
     ]
   },
   {
@@ -83,12 +120,30 @@
     "tools": [],
     "description": "",
     "commissionStatus": "OPEN",
-    "image": "ARTWORK/5%20Gun_Slayer%20Splash_Art/1.jpg",
-    "imageSecondary": "ARTWORK/5%20Gun_Slayer%20Splash_Art/2.jpg",
+    "image": "artwork/5 Gun_Slayer Splash_Art/1.jpg",
+    "imageThumb": "artwork/5 Gun_Slayer Splash_Art/1.jpg",
+    "imageWeb": "artwork/5 Gun_Slayer Splash_Art/1.jpg",
+    "imageHd": "artwork/5 Gun_Slayer Splash_Art/1.jpg",
+    "imageSecondary": "artwork/5 Gun_Slayer Splash_Art/2.jpg",
     "extraImages": [
-      "ARTWORK/5%20Gun_Slayer%20Splash_Art/2.jpg",
-      "ARTWORK/5%20Gun_Slayer%20Splash_Art/3.png",
-      "ARTWORK/5%20Gun_Slayer%20Splash_Art/4.jpg"
+      {
+        "original": "artwork/5 Gun_Slayer Splash_Art/2.jpg",
+        "thumb": "artwork/5 Gun_Slayer Splash_Art/2.jpg",
+        "web": "artwork/5 Gun_Slayer Splash_Art/2.jpg",
+        "hd": "artwork/5 Gun_Slayer Splash_Art/2.jpg"
+      },
+      {
+        "original": "artwork/5 Gun_Slayer Splash_Art/3.png",
+        "thumb": "artwork/5 Gun_Slayer Splash_Art/3.png",
+        "web": "artwork/5 Gun_Slayer Splash_Art/3.png",
+        "hd": "artwork/5 Gun_Slayer Splash_Art/3.png"
+      },
+      {
+        "original": "artwork/5 Gun_Slayer Splash_Art/4.jpg",
+        "thumb": "artwork/5 Gun_Slayer Splash_Art/4.jpg",
+        "web": "artwork/5 Gun_Slayer Splash_Art/4.jpg",
+        "hd": "artwork/5 Gun_Slayer Splash_Art/4.jpg"
+      }
     ]
   },
   {
@@ -103,10 +158,18 @@
     "tools": [],
     "description": "",
     "commissionStatus": "OPEN",
-    "image": "ARTWORK/6%20Boa_Hancock%20Fan_Art/1.jpg",
-    "imageSecondary": "ARTWORK/6%20Boa_Hancock%20Fan_Art/2.png",
+    "image": "artwork/6 Boa_Hancock Fan_Art/1.jpg",
+    "imageThumb": "artwork/6 Boa_Hancock Fan_Art/1.jpg",
+    "imageWeb": "artwork/6 Boa_Hancock Fan_Art/1.jpg",
+    "imageHd": "artwork/6 Boa_Hancock Fan_Art/1.jpg",
+    "imageSecondary": "artwork/6 Boa_Hancock Fan_Art/2.png",
     "extraImages": [
-      "ARTWORK/6%20Boa_Hancock%20Fan_Art/2.png"
+      {
+        "original": "artwork/6 Boa_Hancock Fan_Art/2.png",
+        "thumb": "artwork/6 Boa_Hancock Fan_Art/2.png",
+        "web": "artwork/6 Boa_Hancock Fan_Art/2.png",
+        "hd": "artwork/6 Boa_Hancock Fan_Art/2.png"
+      }
     ]
   },
   {
@@ -121,7 +184,10 @@
     "tools": [],
     "description": "",
     "commissionStatus": "OPEN",
-    "image": "ARTWORK/7%20The_Slayer%20Fan_Art/1.jpg",
+    "image": "artwork/7 The_Slayer Fan_Art/1.jpg",
+    "imageThumb": "artwork/7 The_Slayer Fan_Art/1.jpg",
+    "imageWeb": "artwork/7 The_Slayer Fan_Art/1.jpg",
+    "imageHd": "artwork/7 The_Slayer Fan_Art/1.jpg",
     "imageSecondary": "",
     "extraImages": []
   },
@@ -137,10 +203,18 @@
     "tools": [],
     "description": "",
     "commissionStatus": "OPEN",
-    "image": "ARTWORK/8%20Red_Lighting%20Character_Art/1.jpg",
-    "imageSecondary": "ARTWORK/8%20Red_Lighting%20Character_Art/2.jpg",
+    "image": "artwork/8 Red_Lighting Character_Art/1.jpg",
+    "imageThumb": "artwork/8 Red_Lighting Character_Art/1.jpg",
+    "imageWeb": "artwork/8 Red_Lighting Character_Art/1.jpg",
+    "imageHd": "artwork/8 Red_Lighting Character_Art/1.jpg",
+    "imageSecondary": "artwork/8 Red_Lighting Character_Art/2.jpg",
     "extraImages": [
-      "ARTWORK/8%20Red_Lighting%20Character_Art/2.jpg"
+      {
+        "original": "artwork/8 Red_Lighting Character_Art/2.jpg",
+        "thumb": "artwork/8 Red_Lighting Character_Art/2.jpg",
+        "web": "artwork/8 Red_Lighting Character_Art/2.jpg",
+        "hd": "artwork/8 Red_Lighting Character_Art/2.jpg"
+      }
     ]
   },
   {
@@ -155,10 +229,18 @@
     "tools": [],
     "description": "",
     "commissionStatus": "OPEN",
-    "image": "ARTWORK/9%20Spideyy%20Splash_Art/1.jpg",
-    "imageSecondary": "ARTWORK/9%20Spideyy%20Splash_Art/2.jpg",
+    "image": "artwork/9 Spideyy Splash_Art/1.jpg",
+    "imageThumb": "artwork/9 Spideyy Splash_Art/1.jpg",
+    "imageWeb": "artwork/9 Spideyy Splash_Art/1.jpg",
+    "imageHd": "artwork/9 Spideyy Splash_Art/1.jpg",
+    "imageSecondary": "artwork/9 Spideyy Splash_Art/2.jpg",
     "extraImages": [
-      "ARTWORK/9%20Spideyy%20Splash_Art/2.jpg"
+      {
+        "original": "artwork/9 Spideyy Splash_Art/2.jpg",
+        "thumb": "artwork/9 Spideyy Splash_Art/2.jpg",
+        "web": "artwork/9 Spideyy Splash_Art/2.jpg",
+        "hd": "artwork/9 Spideyy Splash_Art/2.jpg"
+      }
     ]
   },
   {
@@ -173,7 +255,10 @@
     "tools": [],
     "description": "",
     "commissionStatus": "OPEN",
-    "image": "ARTWORK/10%20Constrction_Mech%20Concept_Art/1.png",
+    "image": "artwork/10 Constrction_Mech Concept_Art/1.png",
+    "imageThumb": "artwork/10 Constrction_Mech Concept_Art/1-thumb.jpg",
+    "imageWeb": "artwork/10 Constrction_Mech Concept_Art/1-web.jpg",
+    "imageHd": "artwork/10 Constrction_Mech Concept_Art/1-hd.jpg",
     "imageSecondary": "",
     "extraImages": []
   }

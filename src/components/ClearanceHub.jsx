@@ -7,21 +7,35 @@ gsap.registerPlugin(ScrollTrigger);
 const tiers = [
   {
     name: 'TIER_01',
-    title: 'BASIC FILE',
-    price: '$50',
-    features: ['Single Character', 'B&W', '1 Revision', '7d turnaround']
+    title: 'CHARACTER ILLUSTRATION',
+    items: [
+      { label: 'Headshot', price: '₹3,000 / $36' },
+      { label: 'Half Body', price: '₹4,500 / $54' },
+      { label: 'Full Body', price: '₹6,000 / $72' }
+    ]
   },
   {
     name: 'TIER_02',
-    title: 'STANDARD DOSSIER',
-    price: '$150',
-    features: ['Character or scene', 'Full color', '2 revisions', '14d', 'Print res']
+    title: 'CHARACTER DESIGN (Pro)',
+    price: '₹18,000 / $217',
+    features: ['Character Sheet', 'Front + Back View', '3 Facial Expressions']
   },
   {
     name: 'TIER_03',
-    title: 'PREMIUM ARCHIVE',
-    price: '$300+',
-    features: ['Custom concept', 'Large format', 'Priority', 'Commercial rights']
+    title: 'BOOK COVERS & SPLASH ART',
+    items: [
+      { label: 'Cover', price: '₹12,000 / $145' },
+      { label: 'Full Wrap Cover', price: '₹20,000 / $241' },
+      { label: 'Splash / Wallpaper', price: '₹15,000 / $181' }
+    ]
+  },
+  {
+    name: 'TIER_04',
+    title: 'VECTOR & LINE ART',
+    items: [
+      { label: 'Complex Vector', price: '₹4,000 / $48' },
+      { label: 'Illustration (Flat)', price: '₹6,500 / $78' }
+    ]
   }
 ];
 
@@ -30,7 +44,7 @@ export const ClearanceHub = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    projectType: 'CHARACTER_DESIGN',
+    projectType: 'CHARACTER_ILLUSTRATION',
     message: ''
   });
 
@@ -62,7 +76,7 @@ export const ClearanceHub = () => {
     setFormData({
       name: '',
       email: '',
-      projectType: 'CHARACTER_DESIGN',
+      projectType: 'CHARACTER_ILLUSTRATION',
       message: ''
     });
   };
@@ -134,7 +148,7 @@ export const ClearanceHub = () => {
             }}
           />
           <div>
-            <div style={{ fontSize: '10px', color: 'var(--accent-red)', letterSpacing: '2px' }}>CLEARANCE_DESK</div>
+            <div style={{ fontSize: '12px', color: 'var(--accent-red)', letterSpacing: '2px' }}>CLEARANCE_DESK</div>
             <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginTop: '4px' }}>Commissions · remote worldwide</div>
           </div>
         </div>
@@ -145,7 +159,7 @@ export const ClearanceHub = () => {
             padding: '20px 24px'
           }}
         >
-          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', letterSpacing: '2px' }}>TRANSMISSION_LINE</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', letterSpacing: '2px' }}>TRANSMISSION_LINE</div>
           <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginTop: '4px' }}>Encrypted inquiry · response within 48h</div>
         </div>
       </div>
@@ -164,18 +178,28 @@ export const ClearanceHub = () => {
               <div className="hub-tier-card">
               <div className="corner-bracket corner-tl" style={{ top: 6, left: 6 }} />
               <div className="corner-bracket corner-br" style={{ bottom: 6, right: 6 }} />
-              <div style={{ fontSize: '10px', color: 'var(--accent-red)', letterSpacing: '2px', marginBottom: '6px' }}>{tier.name}</div>
+              <div style={{ fontSize: '12px', color: 'var(--accent-red)', letterSpacing: '2px', marginBottom: '6px' }}>{tier.name}</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
                 <h3 style={{ fontSize: '17px', fontFamily: "'Cinzel', serif", color: 'var(--text-primary)', margin: 0 }}>{tier.title}</h3>
-                <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--accent-red)', fontFamily: "'Cinzel', serif" }}>{tier.price}</span>
+                {tier.price && <span style={{ fontSize: '22px', fontWeight: 700, color: 'var(--accent-red)', fontFamily: "'Cinzel', serif" }}>{tier.price}</span>}
               </div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '14px 0 0', fontSize: '10px', color: 'var(--text-secondary)', lineHeight: '1.85' }}>
-                {tier.features.map((f) => (
-                  <li key={f}>
-                    <span style={{ color: 'var(--accent-red)' }}>▸</span> {f}
-                  </li>
-                ))}
-              </ul>
+              {tier.items ? (
+                <ul style={{ listStyle: 'none', padding: 0, margin: '14px 0 0', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.85' }}>
+                  {tier.items.map((item) => (
+                    <li key={item.label}>
+                      <span style={{ color: 'var(--accent-red)' }}>▸</span> {item.label}: <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{item.price}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ul style={{ listStyle: 'none', padding: 0, margin: '14px 0 0', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.85' }}>
+                  {tier.features.map((f) => (
+                    <li key={f}>
+                      <span style={{ color: 'var(--accent-red)' }}>▸</span> {f}
+                    </li>
+                  ))}
+                </ul>
+              )}
               </div>
             </div>
           ))}
@@ -189,11 +213,22 @@ export const ClearanceHub = () => {
           }}
         >
           <div className="hub-transmit-panel">
-          <div style={{ fontSize: '10px', color: 'var(--accent-red)', letterSpacing: '3px', marginBottom: '16px' }}>// SECURE_UPLINK</div>
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.9', marginBottom: '22px', fontFamily: "'Share Tech Mono', monospace" }}>
-            <div style={{ color: 'var(--accent-red)' }}>&gt; AES-256 CHANNEL</div>
-            <div>&gt; ROUTE: LETREZDRAW_INBOX</div>
-            <div>&gt; AWAITING_PAYLOAD…</div>
+          <div style={{ fontSize: '12px', color: 'var(--accent-red)', letterSpacing: '3px', marginBottom: '16px' }}>// SECURE_UPLINK</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.9', marginBottom: '24px', fontFamily: "'Share Tech Mono', monospace" }}>
+            <div style={{ color: 'var(--text-primary)', fontWeight: 500, marginBottom: '12px' }}>// PROCESS</div>
+            <div style={{ marginBottom: '6px' }}>&gt; DM with idea + reference images</div>
+            <div style={{ marginBottom: '6px' }}>&gt; 50% deposit to start work</div>
+            <div style={{ marginBottom: '6px' }}>&gt; Sketch approval + 2 major revisions</div>
+            <div style={{ marginBottom: '12px' }}>&gt; Final payment · HD files delivery</div>
+            
+            <div style={{ color: 'var(--text-primary)', fontWeight: 500, marginBottom: '12px' }}>// ADDONS</div>
+            <div style={{ marginBottom: '6px' }}>&gt; Complex Background: ₹2,000-5,000 / $24-60</div>
+            <div style={{ marginBottom: '6px' }}>&gt; Extra Character: +75% of base price</div>
+            <div style={{ marginBottom: '12px' }}>&gt; Commercial Rights (x2):</div>
+            <div style={{ marginBottom: '12px' }}>&gt; Turnaround: 1-3 weeks</div>
+            
+            <div style={{ color: 'var(--text-primary)', fontWeight: 500, marginBottom: '6px' }}>// PAYMENT</div>
+            <div>&gt; 50% via UPI / GPay / PayPal · 1-3 weeks turnaround</div>
           </div>
 
           <form onSubmit={handleSubmit} className="hub-form">
@@ -218,9 +253,10 @@ export const ClearanceHub = () => {
               onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
               className="hub-input"
             >
+              <option value="CHARACTER_ILLUSTRATION">CHARACTER_ILLUSTRATION</option>
               <option value="CHARACTER_DESIGN">CHARACTER_DESIGN</option>
-              <option value="CONCEPT_ART">CONCEPT_ART</option>
-              <option value="ENVIRONMENT_ART">ENVIRONMENT_ART</option>
+              <option value="BOOK_COVERS_SPLASH">BOOK_COVERS_SPLASH</option>
+              <option value="VECTOR_LINE_ART">VECTOR_LINE_ART</option>
               <option value="CUSTOM">CUSTOM</option>
             </select>
             <textarea
@@ -245,7 +281,7 @@ export const ClearanceHub = () => {
           marginTop: '48px',
           paddingTop: '28px',
           borderTop: '1px solid var(--border-color)',
-          fontSize: '10px',
+          fontSize: '12px',
           color: 'var(--text-muted)',
           textAlign: 'center',
           letterSpacing: '1px',

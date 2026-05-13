@@ -139,27 +139,50 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
             <div style={{ fontSize: '12px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px' }}>
               TOP SECRET // DECLASSIFIED
             </div>
-            <button
-              type="button"
-              onClick={handleClose}
-              style={{
-                fontSize: '11px',
-                color: 'var(--text-secondary)',
-                border: 'none',
-                background: 'none',
-                cursor: 'pointer',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = 'var(--accent-red)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = 'var(--text-secondary)';
-              }}
-            >
-              [CLOSE FILE ESC]
-            </button>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <button
+                type="button"
+                onClick={() => window.open(artwork.imageHd || artwork.image, '_blank')}
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--text-secondary)',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = 'var(--accent-red)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = 'var(--text-secondary)';
+                }}
+              >
+                [FULLSCREEN]
+              </button>
+              <button
+                type="button"
+                onClick={handleClose}
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--text-secondary)',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = 'var(--accent-red)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = 'var(--text-secondary)';
+                }}
+              >
+                [CLOSE FILE ESC]
+              </button>
+            </div>
           </div>
 
           <div
@@ -173,16 +196,18 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
             }}
           >
             <div>
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative', maxHeight: '80vh', overflow: 'auto' }}>
                 <img
-                  src={artwork.image}
+                  src={artwork.imageWeb || artwork.image}
+                  srcSet={`${artwork.imageWeb || artwork.image} 1280w, ${artwork.imageHd || artwork.image} 1920w`}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   alt={artwork.title}
                   style={{
                     width: '100%',
-                    maxWidth: '100%',
-                    height: '400px',
+                    height: 'auto',
                     border: '1px solid var(--border-color)',
-                    objectFit: 'cover'
+                    objectFit: 'contain',
+                    display: 'block'
                   }}
                 />
                 <div className="corner-bracket corner-tl" style={{ top: 8, left: 8 }} />
@@ -259,24 +284,30 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
                   marginBottom: '48px'
                 }}
               >
-                {extras.map((src, idx) => (
-                  <div key={`${src}-${idx}`} style={{ display: 'flex', flexDirection: 'column' }}>
-                    <img
-                      src={src}
-                      alt={`Reference ${idx + 2}`}
-                      style={{
-                        width: '100%',
-                        height: '200px',
-                        border: '1px solid var(--border-color)',
-                        objectFit: 'cover',
-                        marginBottom: '10px'
-                      }}
-                    />
-                    <div style={{ fontSize: '10px', color: 'var(--accent-red)', letterSpacing: '1px' }}>
-                      FILE_{String(idx + 2).padStart(2, '0')}
+                {extras.map((item, idx) => {
+                  const imgSrc = typeof item === 'string' ? item : (item.web || item.original);
+                  const imgSrcSet = typeof item === 'string' ? undefined : `${item.web || item.original} 1280w, ${item.hd || item.original} 1920w`;
+                  return (
+                    <div key={`${imgSrc}-${idx}`} style={{ display: 'flex', flexDirection: 'column' }}>
+                      <img
+                        src={imgSrc}
+                        srcSet={imgSrcSet}
+                        sizes="(max-width: 768px) 100vw, 220px"
+                        alt={`Reference ${idx + 2}`}
+                        style={{
+                          width: '100%',
+                          height: '200px',
+                          border: '1px solid var(--border-color)',
+                          objectFit: 'cover',
+                          marginBottom: '10px'
+                        }}
+                      />
+                      <div style={{ fontSize: '12px', color: 'var(--accent-red)', letterSpacing: '1px' }}>
+                        FILE_{String(idx + 2).padStart(2, '0')}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}

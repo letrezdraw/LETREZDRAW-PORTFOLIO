@@ -16,7 +16,7 @@ export const Sidebar = () => {
       position: 'fixed',
       left: 0,
       top: 0,
-      width: '48px',
+      width: '56px',
       height: '100vh',
       background: 'var(--bg-secondary)',
       borderRight: '1px solid var(--border-color)',
@@ -24,13 +24,13 @@ export const Sidebar = () => {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '24px 0',
+      padding: '32px 0',
       zIndex: 980,
     }}>
       <div style={{
         writingMode: 'vertical-rl',
         textOrientation: 'mixed',
-        fontSize: '11px',
+        fontSize: '13px',
         color: 'var(--text-secondary)',
         letterSpacing: '2px',
         transform: 'rotate(180deg)'
@@ -41,13 +41,13 @@ export const Sidebar = () => {
       <div style={{
         writingMode: 'vertical-rl',
         textOrientation: 'mixed',
-        fontSize: '11px',
+        fontSize: '13px',
         color: 'var(--text-secondary)',
         letterSpacing: '2px',
         transform: 'rotate(180deg)',
         display: 'flex',
         alignItems: 'center',
-        gap: '6px'
+        gap: '8px'
       }}>
         <div style={{
           width: '6px',

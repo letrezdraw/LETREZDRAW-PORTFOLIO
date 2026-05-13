@@ -1,6 +1,6 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, memo } from 'react';
 
-export const GalleryCard = ({ artwork }) => {
+export const GalleryCard = memo(({ artwork }) => {
   const wrapRef = useRef(null);
   const faceRef = useRef(null);
   const [hover, setHover] = useState(false);
@@ -54,7 +54,9 @@ export const GalleryCard = ({ artwork }) => {
         <div className="gallery-card-3d__shine" aria-hidden />
         <div className="gallery-card-3d__inner">
           <img
-            src={artwork.image}
+            src={artwork.imageThumb || artwork.image}
+            srcSet={`${artwork.imageThumb || artwork.image} 400w, ${artwork.imageWeb || artwork.image} 1280w`}
+            sizes="(max-width: 768px) 400px, 1280px"
             alt={artwork.title}
             loading="lazy"
             decoding="async"
@@ -76,4 +78,4 @@ export const GalleryCard = ({ artwork }) => {
       </div>
     </div>
   );
-};
+});

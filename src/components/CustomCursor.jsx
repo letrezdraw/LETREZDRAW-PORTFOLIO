@@ -163,7 +163,7 @@ export const CustomCursor = () => {
           position: 'fixed',
           top: 0,
           left: 0,
-          fontSize: '10px',
+          fontSize: '12px',
           color: 'var(--accent-red)',
           fontFamily: "'Share Tech Mono', monospace",
           pointerEvents: 'none',

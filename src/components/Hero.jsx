@@ -3,17 +3,35 @@ import gsap from 'gsap';
 import { pointer } from '../pointerStore';
 import { scrollToSection } from '../utils/scrollToSection';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
+import { useRenderTheme } from '../context/RenderThemeContext';
 import PixelBlast from './PixelBlast';
 
 export const Hero = () => {
   const [bootComplete, setBootComplete] = useState(false);
   const [showGlitch, setShowGlitch] = useState(false);
   const device = useDeviceCapability();
+  const { themeIndex } = useRenderTheme();
   const containerRef = useRef(null);
   const spotlightRef = useRef(null);
   const mouseReadoutRef = useRef(null);
   const spotlightLerpRef = useRef({ x: 0, y: 0 });
   const containerRectRef = useRef(null);
+
+  // Determine if light theme (includes both beige and white/pink themes)
+  const isLightTheme = themeIndex === 3 || themeIndex === 4; // data-render-style='4' or '5'
+
+  // Disable scrolling during boot sequence
+  useEffect(() => {
+    if (bootComplete) {
+      document.body.style.overflow = '';
+    } else {
+      document.body.style.overflow = 'hidden';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [bootComplete]);
 
   // Boot sequence animation
   useEffect(() => {
@@ -209,11 +227,15 @@ export const Hero = () => {
             left: 0,
             width: '100%',
             height: '100%',
-            background: 'rgba(5, 5, 5, 0.98)',
+            background: isLightTheme ? 'rgba(243, 241, 234, 0.98)' : 'rgba(5, 5, 5, 0.98)',
             pointerEvents: 'none',
             zIndex: 20,
-            mask: `radial-gradient(circle min(120vw, 1180px) at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent 0%, transparent 9%, rgba(0,0,0,0.18) 32%, rgba(0,0,0,0.72) 52%, rgba(0,0,0,0.96) 68%, black 100%)`,
-            WebkitMask: `radial-gradient(circle min(120vw, 1180px) at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent 0%, transparent 9%, rgba(0,0,0,0.18) 32%, rgba(0,0,0,0.72) 52%, rgba(0,0,0,0.96) 68%, black 100%)`,
+            mask: isLightTheme
+              ? `radial-gradient(circle min(120vw, 1180px) at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent 0%, transparent 9%, rgba(255,255,255,0.18) 32%, rgba(255,255,255,0.72) 52%, rgba(255,255,255,0.96) 68%, white 100%)`
+              : `radial-gradient(circle min(120vw, 1180px) at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent 0%, transparent 9%, rgba(0,0,0,0.18) 32%, rgba(0,0,0,0.72) 52%, rgba(0,0,0,0.96) 68%, black 100%)`,
+            WebkitMask: isLightTheme
+              ? `radial-gradient(circle min(120vw, 1180px) at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent 0%, transparent 9%, rgba(255,255,255,0.18) 32%, rgba(255,255,255,0.72) 52%, rgba(255,255,255,0.96) 68%, white 100%)`
+              : `radial-gradient(circle min(120vw, 1180px) at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent 0%, transparent 9%, rgba(0,0,0,0.18) 32%, rgba(0,0,0,0.72) 52%, rgba(0,0,0,0.96) 68%, black 100%)`,
             transition: 'mask 0ms linear, -webkit-mask 0ms linear'
           }}
         />

@@ -100,9 +100,9 @@ export const Network = () => {
               rel="noopener noreferrer"
               className="network-card interactive"
             >
-            <div style={{ fontSize: '10px', color: 'var(--accent-red)', letterSpacing: '2px', marginBottom: '8px' }}>{s.label}</div>
+            <div style={{ fontSize: '12px', color: 'var(--accent-red)', letterSpacing: '2px', marginBottom: '8px' }}>{s.label}</div>
             <div style={{ fontSize: '14px', color: 'var(--text-primary)', fontFamily: "'Cinzel', serif" }}>{s.handle}</div>
-            <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '12px' }}>[ OPEN CHANNEL → ]</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '12px' }}>[ OPEN CHANNEL → ]</div>
             </a>
           </div>
         ))}

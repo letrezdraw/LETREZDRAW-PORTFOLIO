@@ -11,13 +11,13 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
-const ARTWORK_ROOT = path.join(ROOT, 'public', 'ARTWORK');
+const ARTWORK_ROOT = path.join(ROOT, 'public', 'artwork');
 const OUT_FILE = path.join(ROOT, 'public', 'artwork-manifest.json');
 
 const IMAGE_EXT = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif']);
 
 function fileRelPath(folderName, fileName) {
-  return `ARTWORK/${encodeURIComponent(folderName)}/${encodeURIComponent(fileName)}`;
+  return `artwork/${folderName}/${fileName}`;
 }
 
 function parseFolderName(folderName) {
@@ -48,16 +48,37 @@ function listNumberedImages(dirPath) {
   } catch {
     return [];
   }
-  const out = [];
+  const imagesByNum = {};
   for (const e of entries) {
     if (!e.isFile()) continue;
     const ext = path.extname(e.name).toLowerCase();
     if (!IMAGE_EXT.has(ext)) continue;
-    const m = e.name.match(/^(\d+)\./);
-    if (!m) continue;
-    out.push({ num: parseInt(m[1], 10), file: e.name });
+    
+    let m;
+    let num, variant;
+    
+    // Match patterns like "1.jpg", "1-thumb.jpg", "1-web.jpg", "1-hd.jpg"
+    if ((m = e.name.match(/^(\d+)-(thumb|web|hd)\.(?:jpe?g|png|webp|gif|avif)$/i))) {
+      num = parseInt(m[1], 10);
+      variant = m[2].toLowerCase();
+    } else if ((m = e.name.match(/^(\d+)\.(?:jpe?g|png|webp|gif|avif)$/i))) {
+      num = parseInt(m[1], 10);
+      variant = 'original';
+    } else {
+      continue;
+    }
+    
+    if (!imagesByNum[num]) {
+      imagesByNum[num] = { original: null, thumb: null, web: null, hd: null };
+    }
+    imagesByNum[num][variant] = e.name;
   }
-  out.sort((a, b) => a.num - b.num);
+  
+  const out = [];
+  const nums = Object.keys(imagesByNum).map(Number).sort((a, b) => a - b);
+  for (const num of nums) {
+    out.push(imagesByNum[num]);
+  }
   return out;
 }
 
@@ -81,15 +102,16 @@ function scan() {
     if (!parsed) continue;
     const abs = path.join(ARTWORK_ROOT, folderName);
     const files = listNumberedImages(abs);
-    const main = files.find((f) => f.num === 1);
-    if (!main) {
+    if (!files || files.length === 0) {
+      console.warn(`[scan-artwork] Skip "${folderName}" — no images found`);
+      continue;
+    }
+    const main = files[0];
+    if (!main || !main.original) {
       console.warn(`[scan-artwork] Skip "${folderName}" — no file named 1.* (main image)`);
       continue;
     }
-    const extras = files.filter((f) => f.num >= 2);
-    const baseRel = `ARTWORK/${folderName}`;
-    const mainUrl = fileRelPath(folderName, main.file);
-    const extraUrls = extras.map((f) => fileRelPath(folderName, f.file));
+    const extras = files.slice(1);
 
     rows.push({
       id: `ART-${String(parsed.order).padStart(3, '0')}`,
@@ -103,9 +125,17 @@ function scan() {
       tools: [],
       description: '',
       commissionStatus: 'OPEN',
-      image: mainUrl,
-      imageSecondary: extraUrls[0] ?? '',
-      extraImages: extraUrls
+      image: fileRelPath(folderName, main.original),
+      imageThumb: fileRelPath(folderName, main.thumb || main.original),
+      imageWeb: fileRelPath(folderName, main.web || main.original),
+      imageHd: fileRelPath(folderName, main.hd || main.original),
+      imageSecondary: extras[0]?.original ? fileRelPath(folderName, extras[0].original) : '',
+      extraImages: extras.map((f) => ({
+        original: fileRelPath(folderName, f.original),
+        thumb: f.thumb ? fileRelPath(folderName, f.thumb) : fileRelPath(folderName, f.original),
+        web: f.web ? fileRelPath(folderName, f.web) : fileRelPath(folderName, f.original),
+        hd: f.hd ? fileRelPath(folderName, f.hd) : fileRelPath(folderName, f.original)
+      }))
     });
   }
 
