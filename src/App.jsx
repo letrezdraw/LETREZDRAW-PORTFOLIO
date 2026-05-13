@@ -6,8 +6,8 @@ import { Hero } from './components/Hero';
 import { Gallery } from './components/Gallery';
 import { Marquee } from './components/Marquee';
 import { About } from './components/About';
-import { Commissions } from './components/Commissions';
-import { Contact } from './components/Contact';
+import { ClearanceHub } from './components/ClearanceHub';
+import { Network } from './components/Network';
 import { RedString } from './components/RedString';
 import { CustomCursor } from './components/CustomCursor';
 import './index.css';
@@ -62,7 +62,7 @@ function App() {
   }, []);
 
   return (
-    <div style={{ background: 'var(--bg-primary)', position: 'relative', zIndex: 1 }}>
+    <div className="app-root">
       {/* Custom Cursor and Red String Effects */}
       <CustomCursor />
       <RedString />
@@ -74,7 +74,7 @@ function App() {
       <Navbar scrolled={scrolled} />
 
       {/* Main Content */}
-      <main style={{ marginLeft: '0' }}>
+      <main className="app-main">
         {/* Hero Section */}
         <Hero />
 
@@ -105,11 +105,11 @@ function App() {
           speed="slow"
         />
 
-        {/* Commissions */}
-        <Commissions />
+        {/* Clearance + transmission (commissions & contact) */}
+        <ClearanceHub />
 
-        {/* Contact */}
-        <Contact />
+        {/* Social network */}
+        <Network />
       </main>
     </div>
   );

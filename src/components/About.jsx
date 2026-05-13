@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
-import { publicAsset } from '../utils/publicAsset';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { publicAsset } from '../utils/publicAsset';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,294 +17,177 @@ export const About = () => {
   }, []);
 
   useEffect(() => {
-    const sectionStamp = containerRef.current?.querySelector('.section-stamp');
-    const leftCard = containerRef.current?.querySelector('.identity-card');
-    const rightContent = containerRef.current?.querySelector('.right-content');
+    const root = containerRef.current;
+    if (!root) return undefined;
 
-    if (sectionStamp) {
-      gsap.to(sectionStamp, {
-        opacity: 1,
-        y: 0,
-        scrollTrigger: {
-          trigger: sectionStamp,
-          start: 'top 80%',
-          once: true
-        }
+    const ctx = gsap.context(() => {
+      root.querySelectorAll('.about-reveal').forEach((el, i) => {
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 86%',
+            once: true
+          },
+          delay: i * 0.06
+        });
       });
-    }
+    }, root);
 
-    if (leftCard) {
-      gsap.to(leftCard, {
-        opacity: 1,
-        x: 0,
-        scrollTrigger: {
-          trigger: leftCard,
-          start: 'top 80%',
-          once: true
-        }
-      });
-    }
-
-    if (rightContent) {
-      gsap.to(rightContent, {
-        opacity: 1,
-        x: 0,
-        scrollTrigger: {
-          trigger: rightContent,
-          start: 'top 80%',
-          once: true
-        }
-      });
-    }
+    return () => ctx.revert();
   }, []);
 
   return (
     <section
       id="about"
       ref={containerRef}
+      className="about-section"
       style={{
-        padding: '64px 48px',
+        position: 'relative',
+        zIndex: 100,
+        padding: '72px 48px 96px',
         minHeight: '100vh',
         background: 'var(--bg-primary)',
         borderTop: '1px solid var(--border-color)'
       }}
     >
-      {/* Section Header */}
       <div
-        className="section-stamp"
+        className="section-stamp about-reveal"
         style={{
           fontSize: '12px',
           color: 'var(--text-primary)',
           textTransform: 'uppercase',
           letterSpacing: '2px',
-          marginBottom: '48px',
+          marginBottom: '28px',
           opacity: 0,
-          transform: 'translateY(20px)'
+          transform: 'translateY(18px)'
         }}
       >
-        // <span style={{ color: 'var(--accent-red)' }}>SUBJECT_PROFILE</span> ◈ CASE_FILE: LTZ-03 ◈ STATUS: <span style={{ color: 'var(--accent-red)' }}>ACTIVE</span>
+        // <span style={{ color: 'var(--accent-red)' }}>SUBJECT_PROFILE</span> ◈ LTZ-ARCHIVE ◈{' '}
+        <span style={{ color: 'var(--accent-red)' }}>VERIFIED</span>
       </div>
 
-      {/* Two Column Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '48px' }}>
-        {/* Left - Identity Card */}
-        <div
-          className="identity-card"
-          style={{
-            opacity: 0,
-            transform: 'translateX(-30px)'
-          }}
-        >
-          {/* Profile Image */}
-          <div
-            style={{
-              position: 'relative',
-              marginBottom: '24px',
-              width: '200px',
-              height: '266px',
-              overflow: 'hidden',
-              border: '1px solid var(--border-color)',
-              margin: '0 auto'
-            }}
-          >
-            <img
-              src={publicAsset('artwork/profile.jpg')}
-              alt="Profile"
-              loading="lazy"
-              decoding="async"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                filter: 'grayscale(40%)'
-              }}
-            />
-
-            {/* Corner Brackets */}
-            <div className="corner-bracket corner-tl" />
-            <div className="corner-bracket corner-tr" />
-            <div className="corner-bracket corner-bl" />
-            <div className="corner-bracket corner-br" />
-
-            {/* REC Label */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '12px',
-                left: '12px',
-                fontSize: '10px',
-                color: recActive ? 'var(--accent-red)' : 'rgba(204, 0, 0, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                transition: 'color 0.3s ease'
-              }}
-            >
-              <div
-                style={{
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  background: recActive ? 'var(--accent-red)' : 'rgba(204, 0, 0, 0.3)',
-                  animation: recActive ? 'pulse-blink 1s infinite' : 'none'
-                }}
+      <div className="about-shell about-reveal" style={{ opacity: 0, transform: 'translateY(20px)' }}>
+        <div className="about-shell__grid">
+          <aside className="about-identity">
+            <div className="about-photo-frame">
+              <img
+                src={publicAsset('artwork/profile.jpg')}
+                alt="Profile"
+                loading="lazy"
+                decoding="async"
+                className="about-photo-frame__img"
               />
-              REC_ACTIVE
-            </div>
-
-            {/* Scan Line */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '2px',
-                background: 'rgba(204, 0, 0, 0.5)',
-                animation: 'scan-line-horizontal 3s linear infinite'
-              }}
-            />
-
-            {/* Face ID */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '12px',
-                left: '12px',
-                fontSize: '10px',
-                color: 'var(--accent-red)',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}
-            >
-              FACE_ID: VERIFIED
-            </div>
-          </div>
-
-          {/* Identity Info */}
-          <div style={{ fontSize: '11px', lineHeight: '2', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            <div><span style={{ color: 'var(--accent-red)' }}>CODENAME:</span> <span style={{ color: 'var(--text-primary)' }}>LETREZDRAW</span></div>
-            <div><span style={{ color: 'var(--accent-red)' }}>CLASS:</span> <span style={{ color: 'var(--text-primary)' }}>DIGITAL_ILLUSTRATOR</span></div>
-            <div><span style={{ color: 'var(--accent-red)' }}>CLEARANCE:</span> <span style={{ color: 'var(--text-primary)' }}>LEVEL_5</span></div>
-            <div><span style={{ color: 'var(--accent-red)' }}>LOCATION:</span> <span style={{ color: 'var(--text-primary)' }}>PUNE, INDIA</span></div>
-            <div><span style={{ color: 'var(--accent-red)' }}>STATUS:</span> <span style={{ color: 'var(--text-primary)' }}>OPEN_FOR_CONTRACTS</span></div>
-            <div><span style={{ color: 'var(--accent-red)' }}>REMOTE:</span> <span style={{ color: 'var(--text-primary)' }}>ENABLED</span></div>
-          </div>
-        </div>
-
-        {/* Right - Profile Content */}
-        <div
-          className="right-content"
-          style={{
-            opacity: 0,
-            transform: 'translateX(30px)'
-          }}
-        >
-          {/* Operative Brief */}
-          <div style={{ marginBottom: '48px' }}>
-            <h4 style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
-              // OPERATIVE_BRIEF
-            </h4>
-            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.8', margin: 0 }}>
-              A digital illustrator specializing in character design, concept art, and environment illustration. Passionate about creating immersive worlds and compelling characters. Human-made, no AI. Available for remote commissions and freelance work globally.
-            </p>
-          </div>
-
-          {/* Skill Inventory */}
-          <div style={{ marginBottom: '48px' }}>
-            <h4 style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
-              // SKILL_INVENTORY
-            </h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {[
-                'CHARACTER DESIGN',
-                'CONCEPT ART',
-                'ENVIRONMENT ART',
-                'BACKGROUND ART',
-                'PHOTOSHOP',
-                'ADOBE SUITE',
-                'DIGITAL PAINTING',
-                'COMMISSION WORK'
-              ].map((skill) => (
-                <div
-                  key={skill}
+              <div className="corner-bracket corner-tl" />
+              <div className="corner-bracket corner-tr" />
+              <div className="corner-bracket corner-bl" />
+              <div className="corner-bracket corner-br" />
+              <div className="about-photo-frame__rec">
+                <span
+                  className="about-photo-frame__dot"
                   style={{
-                    fontSize: '11px',
-                    border: '1px solid var(--accent-red)',
-                    color: 'var(--accent-red)',
-                    padding: '6px 12px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
+                    background: recActive ? 'var(--accent-red)' : 'rgba(204, 0, 0, 0.35)',
+                    animation: recActive ? 'pulse-blink 1s infinite' : 'none'
                   }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = 'var(--accent-red)';
-                    e.target.style.color = '#000';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'none';
-                    e.target.style.color = 'var(--accent-red)';
-                  }}
-                >
-                  {skill}
-                </div>
-              ))}
+                />
+                REC
+              </div>
+              <div className="about-photo-frame__scan" />
+              <div className="about-photo-frame__badge">FACE_ID · OK</div>
             </div>
-          </div>
 
-          {/* Field Operations (Timeline) */}
-          <div style={{ marginBottom: '48px' }}>
-            <h4 style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
-              // FIELD_OPERATIONS
-            </h4>
-            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '2', position: 'relative', paddingLeft: '24px' }}>
-              <div style={{ position: 'absolute', left: '8px', top: 0, bottom: 0, width: '2px', background: 'var(--accent-red)' }} />
-              <div>
-                <div style={{ color: 'var(--accent-red)', marginBottom: '4px' }}>2023 — First digital commission</div>
+            <dl className="about-stat-list">
+              <div className="about-stat-list__row">
+                <dt>CODENAME</dt>
+                <dd>LETREZDRAW</dd>
               </div>
-              <div>
-                <div style={{ color: 'var(--accent-red)', marginBottom: '4px' }}>2024 — Expanded portfolio</div>
+              <div className="about-stat-list__row">
+                <dt>CLASS</dt>
+                <dd>DIGITAL_ILLUSTRATOR</dd>
               </div>
-              <div>
-                <div style={{ color: 'var(--accent-red)', marginBottom: '4px' }}>2025 — Full-time illustrator</div>
+              <div className="about-stat-list__row">
+                <dt>CLEARANCE</dt>
+                <dd>LEVEL_5</dd>
               </div>
-              <div>
-                <div style={{ color: 'var(--accent-red)', marginBottom: '4px' }}>2026 — Present day</div>
+              <div className="about-stat-list__row">
+                <dt>LOCATION</dt>
+                <dd>PUNE, INDIA</dd>
               </div>
-            </div>
-          </div>
+              <div className="about-stat-list__row">
+                <dt>STATUS</dt>
+                <dd>OPEN_FOR_WORK</dd>
+              </div>
+              <div className="about-stat-list__row">
+                <dt>REMOTE</dt>
+                <dd>ENABLED</dd>
+              </div>
+            </dl>
+          </aside>
 
-          {/* Specialization Report */}
-          <div>
-            <h4 style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
-              // SPECIALIZATION_REPORT
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '11px' }}>
-              {[
-                { name: 'CHARACTER DESIGN', value: 90 },
-                { name: 'CONCEPT ART', value: 85 },
-                { name: 'ENVIRONMENT ART', value: 80 }
-              ].map((skill) => (
-                <div key={skill.name}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: 'var(--text-secondary)' }}>
-                    <span>{skill.name}</span>
-                    <span>{skill.value}%</span>
+          <div className="about-main">
+            <section className="about-block">
+              <h4 className="about-block__label">// OPERATIVE_BRIEF</h4>
+              <p className="about-block__text">
+                Digital illustrator focused on character design, concept art, and environments. Human-made work, no
+                AI. Available for commissions and freelance worldwide.
+              </p>
+            </section>
+
+            <section className="about-block">
+              <h4 className="about-block__label">// SKILL_INVENTORY</h4>
+              <div className="about-skills">
+                {[
+                  'CHARACTER DESIGN',
+                  'CONCEPT ART',
+                  'ENVIRONMENTS',
+                  'PHOTOSHOP',
+                  'DIGITAL PAINTING',
+                  'COMMISSIONS'
+                ].map((skill) => (
+                  <span key={skill} className="about-skills__chip">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </section>
+
+            <div className="about-split-2">
+              <section className="about-block">
+                <h4 className="about-block__label">// FIELD_OPS</h4>
+                <ul className="about-timeline">
+                  <li>
+                    <span className="about-timeline__y">2023</span> First commission
+                  </li>
+                  <li>
+                    <span className="about-timeline__y">2024</span> Portfolio expansion
+                  </li>
+                  <li>
+                    <span className="about-timeline__y">2025</span> Full-time illustrator
+                  </li>
+                  <li>
+                    <span className="about-timeline__y">2026</span> Present
+                  </li>
+                </ul>
+              </section>
+              <section className="about-block">
+                <h4 className="about-block__label">// SPECIALIZATION</h4>
+                {[
+                  { name: 'CHARACTER', value: 90 },
+                  { name: 'CONCEPT', value: 85 },
+                  { name: 'ENVIRONMENT', value: 80 }
+                ].map((s) => (
+                  <div key={s.name} className="about-meter">
+                    <div className="about-meter__top">
+                      <span>{s.name}</span>
+                      <span>{s.value}%</span>
+                    </div>
+                    <div className="about-meter__track">
+                      <div className="about-meter__fill" style={{ width: `${s.value}%` }} />
+                    </div>
                   </div>
-                  <div style={{ background: 'rgba(204, 0, 0, 0.1)', height: '6px', borderRadius: '2px', overflow: 'hidden' }}>
-                    <div
-                      style={{
-                        background: 'var(--accent-red)',
-                        height: '100%',
-                        width: `${skill.value}%`,
-                        transition: 'width 1.5s ease'
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
+              </section>
             </div>
           </div>
         </div>

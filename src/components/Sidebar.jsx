@@ -25,7 +25,7 @@ export const Sidebar = () => {
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '24px 0',
-      zIndex: 900
+      zIndex: 980,
     }}>
       <div style={{
         writingMode: 'vertical-rl',

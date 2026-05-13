@@ -1,0 +1,180 @@
+[
+  {
+    "id": "ART-001",
+    "folder": "1 Orangescape Character_Art",
+    "order": 1,
+    "title": "Orangescape",
+    "category": "Character Art",
+    "year": "",
+    "medium": "Digital",
+    "tags": [],
+    "tools": [],
+    "description": "",
+    "commissionStatus": "OPEN",
+    "image": "ARTWORK/1%20Orangescape%20Character_Art/1.jpg",
+    "imageSecondary": "ARTWORK/1%20Orangescape%20Character_Art/2.jpg",
+    "extraImages": [
+      "ARTWORK/1%20Orangescape%20Character_Art/2.jpg"
+    ]
+  },
+  {
+    "id": "ART-002",
+    "folder": "2 Crimson_Fan Character_Art",
+    "order": 2,
+    "title": "Crimson_Fan",
+    "category": "Character Art",
+    "year": "",
+    "medium": "Digital",
+    "tags": [],
+    "tools": [],
+    "description": "",
+    "commissionStatus": "OPEN",
+    "image": "ARTWORK/2%20Crimson_Fan%20Character_Art/1.jpg",
+    "imageSecondary": "",
+    "extraImages": []
+  },
+  {
+    "id": "ART-003",
+    "folder": "3 Andrew Character_Art",
+    "order": 3,
+    "title": "Andrew",
+    "category": "Character Art",
+    "year": "",
+    "medium": "Digital",
+    "tags": [],
+    "tools": [],
+    "description": "",
+    "commissionStatus": "OPEN",
+    "image": "ARTWORK/3%20Andrew%20Character_Art/1.jpg",
+    "imageSecondary": "ARTWORK/3%20Andrew%20Character_Art/2.png",
+    "extraImages": [
+      "ARTWORK/3%20Andrew%20Character_Art/2.png"
+    ]
+  },
+  {
+    "id": "ART-004",
+    "folder": "4 Black&Pink Character_Art",
+    "order": 4,
+    "title": "Black&Pink",
+    "category": "Character Art",
+    "year": "",
+    "medium": "Digital",
+    "tags": [],
+    "tools": [],
+    "description": "",
+    "commissionStatus": "OPEN",
+    "image": "ARTWORK/4%20Black%26Pink%20Character_Art/1.jpg",
+    "imageSecondary": "ARTWORK/4%20Black%26Pink%20Character_Art/2.jpg",
+    "extraImages": [
+      "ARTWORK/4%20Black%26Pink%20Character_Art/2.jpg",
+      "ARTWORK/4%20Black%26Pink%20Character_Art/3.jpg",
+      "ARTWORK/4%20Black%26Pink%20Character_Art/4.png"
+    ]
+  },
+  {
+    "id": "ART-005",
+    "folder": "5 Gun_Slayer Splash_Art",
+    "order": 5,
+    "title": "Gun_Slayer",
+    "category": "Splash Art",
+    "year": "",
+    "medium": "Digital",
+    "tags": [],
+    "tools": [],
+    "description": "",
+    "commissionStatus": "OPEN",
+    "image": "ARTWORK/5%20Gun_Slayer%20Splash_Art/1.jpg",
+    "imageSecondary": "ARTWORK/5%20Gun_Slayer%20Splash_Art/2.jpg",
+    "extraImages": [
+      "ARTWORK/5%20Gun_Slayer%20Splash_Art/2.jpg",
+      "ARTWORK/5%20Gun_Slayer%20Splash_Art/3.png",
+      "ARTWORK/5%20Gun_Slayer%20Splash_Art/4.jpg"
+    ]
+  },
+  {
+    "id": "ART-006",
+    "folder": "6 Boa_Hancock Fan_Art",
+    "order": 6,
+    "title": "Boa_Hancock",
+    "category": "Fan Art",
+    "year": "",
+    "medium": "Digital",
+    "tags": [],
+    "tools": [],
+    "description": "",
+    "commissionStatus": "OPEN",
+    "image": "ARTWORK/6%20Boa_Hancock%20Fan_Art/1.jpg",
+    "imageSecondary": "ARTWORK/6%20Boa_Hancock%20Fan_Art/2.png",
+    "extraImages": [
+      "ARTWORK/6%20Boa_Hancock%20Fan_Art/2.png"
+    ]
+  },
+  {
+    "id": "ART-007",
+    "folder": "7 The_Slayer Fan_Art",
+    "order": 7,
+    "title": "The_Slayer",
+    "category": "Fan Art",
+    "year": "",
+    "medium": "Digital",
+    "tags": [],
+    "tools": [],
+    "description": "",
+    "commissionStatus": "OPEN",
+    "image": "ARTWORK/7%20The_Slayer%20Fan_Art/1.jpg",
+    "imageSecondary": "",
+    "extraImages": []
+  },
+  {
+    "id": "ART-008",
+    "folder": "8 Red_Lighting Character_Art",
+    "order": 8,
+    "title": "Red_Lighting",
+    "category": "Character Art",
+    "year": "",
+    "medium": "Digital",
+    "tags": [],
+    "tools": [],
+    "description": "",
+    "commissionStatus": "OPEN",
+    "image": "ARTWORK/8%20Red_Lighting%20Character_Art/1.jpg",
+    "imageSecondary": "ARTWORK/8%20Red_Lighting%20Character_Art/2.jpg",
+    "extraImages": [
+      "ARTWORK/8%20Red_Lighting%20Character_Art/2.jpg"
+    ]
+  },
+  {
+    "id": "ART-009",
+    "folder": "9 Spideyy Splash_Art",
+    "order": 9,
+    "title": "Spideyy",
+    "category": "Splash Art",
+    "year": "",
+    "medium": "Digital",
+    "tags": [],
+    "tools": [],
+    "description": "",
+    "commissionStatus": "OPEN",
+    "image": "ARTWORK/9%20Spideyy%20Splash_Art/1.jpg",
+    "imageSecondary": "ARTWORK/9%20Spideyy%20Splash_Art/2.jpg",
+    "extraImages": [
+      "ARTWORK/9%20Spideyy%20Splash_Art/2.jpg"
+    ]
+  },
+  {
+    "id": "ART-010",
+    "folder": "10 Constrction_Mech Concept_Art",
+    "order": 10,
+    "title": "Constrction_Mech",
+    "category": "Concept Art",
+    "year": "",
+    "medium": "Digital",
+    "tags": [],
+    "tools": [],
+    "description": "",
+    "commissionStatus": "OPEN",
+    "image": "ARTWORK/10%20Constrction_Mech%20Concept_Art/1.png",
+    "imageSecondary": "",
+    "extraImages": []
+  }
+]

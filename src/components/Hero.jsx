@@ -170,26 +170,7 @@ export const Hero = () => {
         marginTop: '48px'
       }}
     >
-      {/* Spotlight Effect - Limited to Hero Section Only */}
-      {bootComplete && (
-        <div
-          ref={spotlightRef}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'rgba(5, 5, 5, 0.98)',
-            pointerEvents: 'none',
-            zIndex: 1000,
-            mask: `radial-gradient(circle 700px at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent 0%, transparent 20%, black 80%)`,
-            WebkitMask: `radial-gradient(circle 700px at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent 0%, transparent 20%, black 80%)`,
-            transition: 'mask 0ms linear, -webkit-mask 0ms linear'
-          }}
-        />
-      )}
-      {/* Pixel Blast Background Effect - Blended with Dark Areas (Desktop Only) */}
+      {/* Pixel Blast (under copy + spotlight) */}
       {bootComplete && !device.isMobile && device.supportsWebGL2 && (
         <div
           style={{
@@ -199,7 +180,7 @@ export const Hero = () => {
             width: '100%',
             height: '100%',
             pointerEvents: 'none',
-            zIndex: 5,
+            zIndex: 1,
             opacity: 0.15
           }}
         >
@@ -217,6 +198,25 @@ export const Hero = () => {
             transparent
           />
         </div>
+      )}
+      {/* Dark overlay + radial mask hole — must stack ABOVE hero content or the effect is invisible */}
+      {bootComplete && (
+        <div
+          ref={spotlightRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(5, 5, 5, 0.98)',
+            pointerEvents: 'none',
+            zIndex: 20,
+            mask: `radial-gradient(circle min(120vw, 1180px) at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent 0%, transparent 9%, rgba(0,0,0,0.18) 32%, rgba(0,0,0,0.72) 52%, rgba(0,0,0,0.96) 68%, black 100%)`,
+            WebkitMask: `radial-gradient(circle min(120vw, 1180px) at var(--spotlight-x, 50%) var(--spotlight-y, 50%), transparent 0%, transparent 9%, rgba(0,0,0,0.18) 32%, rgba(0,0,0,0.72) 52%, rgba(0,0,0,0.96) 68%, black 100%)`,
+            transition: 'mask 0ms linear, -webkit-mask 0ms linear'
+          }}
+        />
       )}
       {/* Boot Sequence */}
       {!bootComplete && (

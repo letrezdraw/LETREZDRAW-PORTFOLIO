@@ -133,7 +133,7 @@ export const CustomCursor = () => {
           border: '1px solid rgba(212, 0, 0, 0.55)',
           boxSizing: 'border-box',
           pointerEvents: 'none',
-          zIndex: 9997,
+          zIndex: 12100,
           borderRadius: 2,
           boxShadow: '0 0 20px rgba(212, 0, 0, 0.15)',
           willChange: 'transform'
@@ -151,7 +151,7 @@ export const CustomCursor = () => {
           border: isExpanded ? '2px solid var(--accent-red)' : 'none',
           boxSizing: 'border-box',
           pointerEvents: 'none',
-          zIndex: 9998,
+          zIndex: 12200,
           borderRadius: 1,
           transition: 'background 0.15s ease-out, border 0.15s ease-out',
           willChange: 'transform'
@@ -167,7 +167,7 @@ export const CustomCursor = () => {
           color: 'var(--accent-red)',
           fontFamily: "'Share Tech Mono', monospace",
           pointerEvents: 'none',
-          zIndex: 9996,
+          zIndex: 12050,
           textTransform: 'uppercase',
           letterSpacing: '1px',
           whiteSpace: 'nowrap',

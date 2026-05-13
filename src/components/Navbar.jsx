@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { scrollToSection } from '../utils/scrollToSection';
+import { useRenderTheme } from '../context/RenderThemeContext';
 
 export const Navbar = ({ scrolled }) => {
   const [time, setTime] = useState(new Date());
   const [blinkState, setBlinkState] = useState(true);
+  const { cycleTheme, displayStyle } = useRenderTheme();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -24,21 +26,28 @@ export const Navbar = ({ scrolled }) => {
   };
 
   return (
-    <nav style={{
+    <nav
+      className="top-nav"
+      style={{
       position: 'fixed',
       top: 0,
       left: 0,
       right: 0,
-      height: '48px',
-      background: 'rgba(10, 10, 10, 0.95)',
+      minHeight: '48px',
+      height: 'auto',
+      paddingTop: '6px',
+      paddingBottom: '6px',
+      background: 'var(--nav-chrome)',
       backdropFilter: 'blur(8px)',
       borderBottom: scrolled ? '1px solid var(--border-active)' : '1px solid var(--border-color)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
+      flexWrap: 'wrap',
+      rowGap: '8px',
       paddingLeft: '48px',
       paddingRight: '24px',
-      zIndex: 950,
+      zIndex: 1100,
       transition: 'border-color 0.3s ease'
     }}>
       {/* Left - Archive ID */}
@@ -56,9 +65,12 @@ export const Navbar = ({ scrolled }) => {
       <div style={{
         display: 'flex',
         gap: '32px',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: '1 1 auto',
+        minWidth: 0
       }}>
-        {['FILES', 'PROFILE', 'CLEARANCE', 'TRANSMISSION'].map((link) => (
+        {['FILES', 'PROFILE', 'CLEARANCE', 'NETWORK'].map((link) => (
           <button
             key={link}
             className="red-underline"
@@ -74,8 +86,8 @@ export const Navbar = ({ scrolled }) => {
               const sectionMap = {
                 FILES: 'gallery',
                 PROFILE: 'about',
-                CLEARANCE: 'commissions',
-                TRANSMISSION: 'contact'
+                CLEARANCE: 'clearance',
+                NETWORK: 'network'
               };
               scrollToSection(sectionMap[link]);
             }}
@@ -85,6 +97,15 @@ export const Navbar = ({ scrolled }) => {
         ))}
       </div>
 
+      <button
+        type="button"
+        className="navbar-theme-btn"
+        onClick={cycleTheme}
+        title="Cycle render theme"
+      >
+        RENDER STYLE {displayStyle}
+      </button>
+
       {/* Right - Signal and Time */}
       <div style={{
         display: 'flex',
@@ -93,15 +114,16 @@ export const Navbar = ({ scrolled }) => {
         fontSize: '11px',
         color: 'var(--text-secondary)',
         textTransform: 'uppercase',
-        letterSpacing: '1px'
+        letterSpacing: '1px',
+        flexShrink: 0
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <div style={{
             width: '6px',
             height: '6px',
             borderRadius: '50%',
-            background: '#00ff00',
-            boxShadow: '0 0 6px #00ff00'
+            background: blinkState ? '#00ff00' : 'rgba(0,255,0,0.35)',
+            boxShadow: blinkState ? '0 0 6px #00ff00' : 'none',
           }} />
           SIGNAL_STRONG
         </div>

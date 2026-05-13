@@ -6,10 +6,14 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
   const panelRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const extras = [...(artwork.extraImages || [])];
+  if (extras.length === 0 && artwork.imageSecondary) {
+    extras.push(artwork.imageSecondary);
+  }
+
   useEffect(() => {
     const timeline = gsap.timeline();
 
-    // Open animation
     timeline.to(overlayRef.current, {
       opacity: 1,
       duration: 0.3,
@@ -27,7 +31,6 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
       0
     );
 
-    // Keyboard shortcuts
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
       if (e.key === 'ArrowRight') onNext();
@@ -66,18 +69,15 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
   const handleNavigation = (callback) => {
     if (isLoading) return;
     setIsLoading(true);
-    
-    // Fade out content
+
     gsap.to(panelRef.current, {
       opacity: 0.4,
       duration: 0.15,
       ease: 'power2.in'
     });
 
-    // Call the navigation callback after a brief delay
     setTimeout(() => {
       callback();
-      // Fade back in after artwork changes
       setTimeout(() => {
         gsap.to(panelRef.current, {
           opacity: 1,
@@ -89,9 +89,10 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
     }, 200);
   };
 
+  const lastIdx = Math.max(0, (totalFiles ?? 1) - 1);
+
   return (
     <>
-      {/* Overlay */}
       <div
         ref={overlayRef}
         onClick={handleClose}
@@ -103,12 +104,11 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
           bottom: 0,
           background: 'rgba(0, 0, 0, 0.8)',
           opacity: 0,
-          zIndex: 1000,
+          zIndex: 8500,
           backdropFilter: 'blur(4px)'
         }}
       />
 
-      {/* Panel */}
       <div
         ref={panelRef}
         style={{
@@ -120,13 +120,12 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
           borderTop: '1px solid var(--border-color)',
           maxHeight: '90vh',
           overflowY: 'auto',
-          zIndex: 1001,
+          zIndex: 8501,
           y: 40,
           opacity: 0
         }}
       >
         <div style={{ padding: '48px', maxWidth: '1200px', margin: '0 auto' }}>
-          {/* Header */}
           <div
             style={{
               display: 'flex',
@@ -141,6 +140,7 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
               TOP SECRET // DECLASSIFIED
             </div>
             <button
+              type="button"
               onClick={handleClose}
               style={{
                 fontSize: '11px',
@@ -151,15 +151,19 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
                 textTransform: 'uppercase',
                 letterSpacing: '1px'
               }}
-              onMouseEnter={(e) => (e.target.style.color = 'var(--accent-red)')}
-              onMouseLeave={(e) => (e.target.style.color = 'var(--text-secondary)')}
+              onMouseEnter={(e) => {
+                e.target.style.color = 'var(--accent-red)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = 'var(--text-secondary)';
+              }}
             >
               [CLOSE FILE ESC]
             </button>
           </div>
 
-          {/* File Info - Top Section */}
           <div
+            className="lightbox-top-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
@@ -168,7 +172,6 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
               alignItems: 'start'
             }}
           >
-            {/* Left - Main Image */}
             <div>
               <div style={{ position: 'relative' }}>
                 <img
@@ -189,9 +192,7 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
               </div>
             </div>
 
-            {/* Right - Metadata */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-              {/* File Info Header */}
               <div>
                 <div style={{ fontSize: '11px', color: 'var(--accent-red)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   {artwork.id}
@@ -201,137 +202,85 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
                 </div>
               </div>
 
-              {/* Metadata */}
               <div>
                 <h4 style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
                   // METADATA
                 </h4>
                 <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
-                  <div>YEAR: {artwork.year}</div>
-                  <div>MEDIUM: {artwork.medium}</div>
+                  {artwork.year ? <div>YEAR: {artwork.year}</div> : null}
+                  {artwork.medium ? <div>MEDIUM: {artwork.medium}</div> : null}
                   <div>CATEGORY: {artwork.category}</div>
-                  <div>TAGS: {artwork.tags?.join(', ')}</div>
+                  {artwork.tags?.length ? <div>TAGS: {artwork.tags.join(', ')}</div> : null}
                 </div>
               </div>
 
-              {/* Description */}
               <div>
                 <h4 style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
                   // ARTWORK_BRIEF
                 </h4>
                 <p style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.8', margin: 0 }}>
-                  {artwork.description}
+                  {artwork.description || '—'}
                 </p>
               </div>
 
-              {/* Tools */}
-              <div>
-                <h4 style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-                  // TOOLS_USED
-                </h4>
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                  {artwork.tools?.join(' · ')}
+              {artwork.tools?.length ? (
+                <div>
+                  <h4 style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
+                    // TOOLS_USED
+                  </h4>
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{artwork.tools.join(' · ')}</div>
                 </div>
-              </div>
+              ) : null}
 
-              {/* Commission Status */}
               <div>
                 <h4 style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
                   // COMMISSION_STATUS
                 </h4>
                 <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                  ◉ {artwork.commissionStatus} — Request Available
+                  ◉ {artwork.commissionStatus || 'OPEN'} — Request Available
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Evidence Grid Section */}
-          {artwork.imageSecondary && (
+          {extras.length > 0 && (
             <>
               <div style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
                 <h3 style={{ fontSize: '12px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
-                  // EVIDENCE_FILES & RELATED_ASSETS
+                  // RELATED_ASSETS (from ARTWORK folder: 2, 3, 4…)
                 </h3>
               </div>
 
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                  gap: '24px',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                  gap: '20px',
                   marginBottom: '48px'
                 }}
               >
-                {/* Detail/Secondary Image */}
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <img
-                    src={artwork.imageSecondary}
-                    alt="Detail - Process"
-                    style={{
-                      width: '100%',
-                      height: '200px',
-                      border: '1px solid var(--border-color)',
-                      objectFit: 'cover',
-                      marginBottom: '12px'
-                    }}
-                  />
-                  <div style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-                    DETAIL_VIEW
+                {extras.map((src, idx) => (
+                  <div key={`${src}-${idx}`} style={{ display: 'flex', flexDirection: 'column' }}>
+                    <img
+                      src={src}
+                      alt={`Reference ${idx + 2}`}
+                      style={{
+                        width: '100%',
+                        height: '200px',
+                        border: '1px solid var(--border-color)',
+                        objectFit: 'cover',
+                        marginBottom: '10px'
+                      }}
+                    />
+                    <div style={{ fontSize: '10px', color: 'var(--accent-red)', letterSpacing: '1px' }}>
+                      FILE_{String(idx + 2).padStart(2, '0')}
+                    </div>
                   </div>
-                  <p style={{ fontSize: '10px', color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0 }}>
-                    Close-up detail and process documentation of key elements.
-                  </p>
-                </div>
-
-                {/* Sketch/Concept Variant */}
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <img
-                    src={artwork.image}
-                    alt="Sketch - Initial Concept"
-                    style={{
-                      width: '100%',
-                      height: '200px',
-                      border: '1px solid var(--border-color)',
-                      objectFit: 'cover',
-                      marginBottom: '12px',
-                      filter: 'saturate(0.7)'
-                    }}
-                  />
-                  <div style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-                    SKETCH_CONCEPT
-                  </div>
-                  <p style={{ fontSize: '10px', color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0 }}>
-                    Initial concept sketches and design variations.
-                  </p>
-                </div>
-
-                {/* Color Study Variant */}
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <img
-                    src={artwork.image}
-                    alt="Color - Study"
-                    style={{
-                      width: '100%',
-                      height: '200px',
-                      border: '1px solid var(--border-color)',
-                      objectFit: 'cover',
-                      marginBottom: '12px',
-                      filter: 'hue-rotate(45deg)'
-                    }}
-                  />
-                  <div style={{ fontSize: '11px', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-                    COLOR_STUDY
-                  </div>
-                  <p style={{ fontSize: '10px', color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0 }}>
-                    Alternative color palettes and lighting studies.
-                  </p>
-                </div>
+                ))}
               </div>
             </>
           )}
 
-          {/* Navigation */}
           <div
             style={{
               display: 'flex',
@@ -342,13 +291,14 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
             }}
           >
             <button
+              type="button"
               onClick={() => handleNavigation(onPrev)}
-              disabled={isLoading || currentIndex === 0}
+              disabled={isLoading || currentIndex <= 0}
               className="button-terminal"
-              style={{ 
-                opacity: isLoading || currentIndex === 0 ? 0.5 : 1, 
-                pointerEvents: isLoading || currentIndex === 0 ? 'none' : 'auto',
-                cursor: isLoading || currentIndex === 0 ? 'not-allowed' : 'pointer'
+              style={{
+                opacity: isLoading || currentIndex <= 0 ? 0.5 : 1,
+                pointerEvents: isLoading || currentIndex <= 0 ? 'none' : 'auto',
+                cursor: isLoading || currentIndex <= 0 ? 'not-allowed' : 'pointer'
               }}
             >
               [← PREV FILE]
@@ -356,22 +306,21 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
 
             <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
               {isLoading ? (
-                <span style={{ animation: 'pulse-blink 1.5s infinite', display: 'inline-block' }}>
-                  LOADING...
-                </span>
+                <span style={{ animation: 'pulse-blink 1.5s infinite', display: 'inline-block' }}>LOADING...</span>
               ) : (
-                `File ${(currentIndex ?? 0) + 1} of ${totalFiles ?? 8}`
+                `File ${(currentIndex ?? 0) + 1} of ${totalFiles ?? 1}`
               )}
             </div>
 
-            <button 
-              onClick={() => handleNavigation(onNext)} 
-              disabled={isLoading || currentIndex === (totalFiles ?? 8) - 1}
-              className="button-terminal" 
-              style={{ 
-                opacity: isLoading || currentIndex === (totalFiles ?? 8) - 1 ? 0.5 : 1, 
-                pointerEvents: isLoading || currentIndex === (totalFiles ?? 8) - 1 ? 'none' : 'auto',
-                cursor: isLoading || currentIndex === (totalFiles ?? 8) - 1 ? 'not-allowed' : 'pointer'
+            <button
+              type="button"
+              onClick={() => handleNavigation(onNext)}
+              disabled={isLoading || currentIndex >= lastIdx}
+              className="button-terminal"
+              style={{
+                opacity: isLoading || currentIndex >= lastIdx ? 0.5 : 1,
+                pointerEvents: isLoading || currentIndex >= lastIdx ? 'none' : 'auto',
+                cursor: isLoading || currentIndex >= lastIdx ? 'not-allowed' : 'pointer'
               }}
             >
               [NEXT FILE →]

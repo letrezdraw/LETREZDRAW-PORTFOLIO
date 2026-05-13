@@ -1,23 +1,47 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { artworks } from '../data/artworks';
+import { artworks as fallbackArtworks } from '../data/artworks';
+import { hydrateArtwork } from '../utils/artworkUrls';
 import { GalleryCard } from './GalleryCard';
+import { GalleryWeb } from './GalleryWeb';
 import { Lightbox } from './Lightbox';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const manifestUrl = () => `${import.meta.env.BASE_URL}artwork-manifest.json`.replace(/\/{2,}/g, '/');
+
 export const Gallery = () => {
-  const [viewMode, setViewMode] = useState('slider'); // 'slider' or 'list'
+  const [viewMode, setViewMode] = useState('slider');
+  const [pieces, setPieces] = useState(fallbackArtworks);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const containerRef = useRef(null);
   const sliderRef = useRef(null);
 
-  // Navigate slider
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${manifestUrl()}?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(String(res.status));
+        const data = await res.json();
+        if (cancelled || !Array.isArray(data)) return;
+        const hydrated = data.map((row) => hydrateArtwork(row));
+        if (hydrated.length > 0) setPieces(hydrated);
+        else setPieces(fallbackArtworks);
+      } catch {
+        if (!cancelled) setPieces(fallbackArtworks);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const scrollToCard = (index) => {
-    if (sliderRef.current && index >= 0 && index < artworks.length) {
-      const cardWidth = 320; // 300px card + 16px gap + 4px buffer
+    if (sliderRef.current && index >= 0 && index < pieces.length) {
+      const cardWidth = 320;
       sliderRef.current.scrollTo({
         left: cardWidth * index,
         behavior: 'smooth'
@@ -27,23 +51,24 @@ export const Gallery = () => {
   };
 
   const handlePrev = () => {
-    const newIndex = Math.max(0, currentIndex - 1);
-    scrollToCard(newIndex);
+    scrollToCard(Math.max(0, currentIndex - 1));
   };
 
   const handleNext = () => {
-    const newIndex = Math.min(artworks.length - 1, currentIndex + 1);
-    scrollToCard(newIndex);
+    scrollToCard(Math.min(pieces.length - 1, currentIndex + 1));
   };
 
-  // Scroll-triggered reveals (cleaned up on unmount / view change)
+  useEffect(() => {
+    setCurrentIndex((i) => Math.min(i, Math.max(0, pieces.length - 1)));
+  }, [pieces.length]);
+
   useEffect(() => {
     const root = containerRef.current;
     if (!root) return undefined;
 
     const ctx = gsap.context(() => {
       const sectionStamp = root.querySelector('.section-stamp');
-      const cards = root.querySelectorAll('.gallery-card-item');
+      const cards = root.querySelectorAll('.gallery-card-item, .gallery-web-node-hook');
 
       if (sectionStamp) {
         gsap.to(sectionStamp, {
@@ -72,20 +97,25 @@ export const Gallery = () => {
     }, root);
 
     return () => ctx.revert();
-  }, [viewMode]);
+  }, [viewMode, pieces.length]);
+
+  const openArt = useCallback((art) => {
+    setSelectedArtwork(art);
+  }, []);
 
   return (
     <section
       id="gallery"
       ref={containerRef}
       style={{
+        position: 'relative',
+        zIndex: 100,
         padding: '64px 48px',
         minHeight: '100vh',
         background: 'var(--bg-primary)',
         borderTop: '1px solid var(--border-color)'
       }}
     >
-      {/* Section Header */}
       <div
         className="section-stamp"
         style={{
@@ -96,24 +126,27 @@ export const Gallery = () => {
           marginBottom: '48px',
           opacity: 0,
           transform: 'translateY(20px)',
-          transition: 'all 0.6s ease'
+          transition: 'all 0.6s ease',
+          textAlign: 'center'
         }}
       >
-        // <span style={{ color: 'var(--accent-red)' }}>CLASSIFIED_ARCHIVE</span> ◈ EVIDENCE BOARD ◈ {artworks.length} <span style={{ color: 'var(--accent-red)' }}>FILES FOUND</span>
+        // <span style={{ color: 'var(--accent-red)' }}>CLASSIFIED_ARCHIVE</span> ◈ EVIDENCE BOARD ◈ {pieces.length}{' '}
+        <span style={{ color: 'var(--accent-red)' }}>FILES FOUND</span>
       </div>
 
-      {/* View Toggle */}
       <div
         style={{
           display: 'flex',
           gap: '16px',
-          justifyContent: 'flex-end',
-          marginBottom: '32px'
+          justifyContent: 'center',
+          marginBottom: '32px',
+          flexWrap: 'wrap'
         }}
       >
-        {['slider', 'list'].map((mode) => (
+        {['slider', 'web'].map((mode) => (
           <button
             key={mode}
+            type="button"
             onClick={() => setViewMode(mode)}
             style={{
               fontSize: '12px',
@@ -133,11 +166,10 @@ export const Gallery = () => {
         ))}
       </div>
 
-      {/* Slider View with Arrow Navigation */}
       {viewMode === 'slider' && (
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* Left Arrow */}
+        <div className="gallery-slider-stage" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '16px' }}>
           <button
+            type="button"
             onClick={handlePrev}
             disabled={currentIndex === 0}
             style={{
@@ -167,7 +199,6 @@ export const Gallery = () => {
             [←]
           </button>
 
-          {/* Slider Container */}
           <div
             ref={sliderRef}
             style={{
@@ -182,7 +213,7 @@ export const Gallery = () => {
               msOverflowStyle: 'none'
             }}
           >
-            {artworks.map((artwork) => (
+            {pieces.map((artwork) => (
               <div
                 key={artwork.id}
                 className="gallery-card-item"
@@ -191,32 +222,32 @@ export const Gallery = () => {
                   opacity: 0,
                   transform: 'translateY(30px)'
                 }}
-                onClick={() => setSelectedArtwork(artwork)}
+                onClick={() => openArt(artwork)}
               >
                 <GalleryCard artwork={artwork} />
               </div>
             ))}
           </div>
 
-          {/* Right Arrow */}
           <button
+            type="button"
             onClick={handleNext}
-            disabled={currentIndex === artworks.length - 1}
+            disabled={currentIndex === pieces.length - 1}
             style={{
               position: 'relative',
               fontSize: '24px',
               background: 'none',
               border: '1px solid var(--border-color)',
-              color: currentIndex === artworks.length - 1 ? 'var(--text-muted)' : 'var(--accent-red)',
+              color: currentIndex === pieces.length - 1 ? 'var(--text-muted)' : 'var(--accent-red)',
               padding: '12px 16px',
-              cursor: currentIndex === artworks.length - 1 ? 'not-allowed' : 'pointer',
+              cursor: currentIndex === pieces.length - 1 ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease',
               textTransform: 'uppercase',
               letterSpacing: '1px',
-              opacity: currentIndex === artworks.length - 1 ? 0.4 : 1
+              opacity: currentIndex === pieces.length - 1 ? 0.4 : 1
             }}
             onMouseEnter={(e) => {
-              if (currentIndex < artworks.length - 1) {
+              if (currentIndex < pieces.length - 1) {
                 e.target.style.borderColor = 'var(--accent-red)';
                 e.target.style.boxShadow = 'inset 0 0 8px rgba(204, 0, 0, 0.2)';
               }
@@ -231,118 +262,36 @@ export const Gallery = () => {
         </div>
       )}
 
-      {/* List View */}
-      {viewMode === 'list' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-          {artworks.map((artwork) => (
-            <div
-              key={artwork.id}
-              className="gallery-card-item"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '160px 1fr auto',
-                gap: '24px',
-                alignItems: 'center',
-                padding: '16px',
-                borderBottom: '1px solid var(--border-color)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                opacity: 0,
-                transform: 'translateY(30px)',
-                ':hover': {
-                  borderLeft: '4px solid var(--accent-red)'
-                }
-              }}
-              onClick={() => setSelectedArtwork(artwork)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(204, 0, 0, 0.05)';
-                e.currentTarget.style.borderLeft = '4px solid var(--accent-red)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'none';
-                e.currentTarget.style.borderLeft = 'none';
-              }}
-            >
-              {/* Thumbnail */}
-              <img
-                src={artwork.image}
-                alt={artwork.title}
-                loading="lazy"
-                decoding="async"
-                style={{
-                  width: '160px',
-                  height: '100px',
-                  objectFit: 'cover',
-                  filter: 'grayscale(60%) brightness(0.6)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.filter = 'grayscale(0%) brightness(1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.filter = 'grayscale(60%) brightness(0.6)';
-                }}
-              />
-
-              {/* Info */}
-              <div>
-                <div style={{ fontSize: '11px', color: 'var(--accent-red)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  {artwork.id}
-                </div>
-                <h3 style={{ fontSize: '16px', color: 'var(--text-primary)', marginBottom: '4px', fontFamily: "'Cinzel', serif" }}>
-                  {artwork.title}
-                </h3>
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  {artwork.category}
-                </div>
-              </div>
-
-              {/* CTA */}
-              <button
-                style={{
-                  fontSize: '11px',
-                  border: '1px solid var(--border-color)',
-                  color: 'var(--text-secondary)',
-                  padding: '8px 12px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px',
-                  background: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.borderColor = 'var(--accent-red)';
-                  e.target.style.color = 'var(--accent-red)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.borderColor = 'var(--border-color)';
-                  e.target.style.color = 'var(--text-secondary)';
-                }}
-              >
-                [DECLASSIFY →]
-              </button>
-            </div>
-          ))}
+      {viewMode === 'web' && (
+        <div
+          className="gallery-web-node-hook"
+          style={{
+            opacity: 0,
+            transform: 'translateY(24px)',
+            maxWidth: '1100px',
+            margin: '0 auto'
+          }}
+        >
+          <GalleryWeb artworks={pieces} onOpen={openArt} />
         </div>
       )}
 
-      {/* Lightbox */}
       {selectedArtwork && (
         <Lightbox
           artwork={selectedArtwork}
-          currentIndex={artworks.findIndex((a) => a.id === selectedArtwork.id)}
-          totalFiles={artworks.length}
+          currentIndex={pieces.findIndex((a) => a.id === selectedArtwork.id)}
+          totalFiles={pieces.length}
           onClose={() => setSelectedArtwork(null)}
           onNext={() => {
-            const currentIdx = artworks.findIndex((a) => a.id === selectedArtwork.id);
-            if (currentIdx < artworks.length - 1) {
-              setSelectedArtwork(artworks[currentIdx + 1]);
+            const currentIdx = pieces.findIndex((a) => a.id === selectedArtwork.id);
+            if (currentIdx < pieces.length - 1) {
+              setSelectedArtwork(pieces[currentIdx + 1]);
             }
           }}
           onPrev={() => {
-            const currentIdx = artworks.findIndex((a) => a.id === selectedArtwork.id);
+            const currentIdx = pieces.findIndex((a) => a.id === selectedArtwork.id);
             if (currentIdx > 0) {
-              setSelectedArtwork(artworks[currentIdx - 1]);
+              setSelectedArtwork(pieces[currentIdx - 1]);
             }
           }}
         />

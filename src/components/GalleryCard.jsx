@@ -1,132 +1,78 @@
-import { useState, useEffect, useRef } from 'react';
+import { useRef, useState, useCallback } from 'react';
 
 export const GalleryCard = ({ artwork }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const cardRef = useRef(null);
+  const wrapRef = useRef(null);
+  const faceRef = useRef(null);
+  const [hover, setHover] = useState(false);
+  const hoverRef = useRef(false);
+  const rafRef = useRef(0);
 
-  useEffect(() => {
-    const scanLine = cardRef.current?.querySelector('.scan-line');
-    if (!scanLine) return;
+  const applyTilt = useCallback((clientX, clientY) => {
+    const el = wrapRef.current;
+    const face = faceRef.current;
+    if (!el || !face) return;
+    const r = el.getBoundingClientRect();
+    const px = (clientX - r.left) / r.width - 0.5;
+    const py = (clientY - r.top) / r.height - 0.5;
+    const rx = py * -9;
+    const ry = px * 11;
+    face.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(12px)`;
+  }, []);
 
-    const animate = () => {
-      scanLine.style.animation = 'scan-line-horizontal 1.5s linear infinite';
-    };
+  const onMove = (e) => {
+    if (!hoverRef.current) return;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = 0;
+      applyTilt(e.clientX, e.clientY);
+    });
+  };
 
-    if (isHovered) {
-      animate();
+  const onEnter = () => {
+    hoverRef.current = true;
+    setHover(true);
+  };
+
+  const onLeave = () => {
+    hoverRef.current = false;
+    setHover(false);
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (faceRef.current) {
+      faceRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0)';
     }
-  }, [isHovered]);
+  };
 
   return (
     <div
-      ref={cardRef}
-      style={{
-        position: 'relative',
-        width: isHovered ? '420px' : '300px',
-        height: '85vh',
-        transition: 'width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        border: `1px solid ${isHovered ? 'var(--border-active)' : 'var(--border-color)'}`,
-        cursor: 'pointer',
-        overflow: 'hidden',
-        background: 'var(--bg-card)'
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      ref={wrapRef}
+      className={`gallery-card-3d-wrap${hover ? ' is-hover' : ''}`}
+      onMouseEnter={onEnter}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
     >
-      {/* Background Image */}
-      <img
-        src={artwork.image}
-        alt={artwork.title}
-        loading="lazy"
-        decoding="async"
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          filter: isHovered
-            ? 'grayscale(0%) brightness(1)'
-            : 'grayscale(60%) brightness(0.6)',
-          transition: 'filter 0.3s ease'
-        }}
-      />
-
-      {/* Dark Overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: isHovered ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.75)',
-          transition: 'background 0.3s ease'
-        }}
-      />
-
-      {/* Scan Line Effect */}
-      <div
-        className="scan-line"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '2px',
-          background: 'rgba(204, 0, 0, 0.5)',
-          display: isHovered ? 'block' : 'none'
-        }}
-      />
-
-      {/* Corner Brackets */}
-      <div className="corner-bracket corner-tl" />
-      <div className="corner-bracket corner-tr" />
-      <div className="corner-bracket corner-bl" />
-      <div className="corner-bracket corner-br" />
-
-      {/* Content */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: '24px',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-          color: 'var(--text-primary)'
-        }}
-      >
-        <div style={{ fontSize: '11px', color: 'var(--accent-red)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          {artwork.id}
+      <div ref={faceRef} className="gallery-card-3d">
+        <div className="gallery-card-3d__shine" aria-hidden />
+        <div className="gallery-card-3d__inner">
+          <img
+            src={artwork.image}
+            alt={artwork.title}
+            loading="lazy"
+            decoding="async"
+            className="gallery-card-3d__img"
+            draggable={false}
+          />
+          <div className={`gallery-card-3d__overlay${hover ? ' is-on' : ''}`} />
+          <div className="corner-bracket corner-tl" />
+          <div className="corner-bracket corner-tr" />
+          <div className="corner-bracket corner-bl" />
+          <div className="corner-bracket corner-br" />
+          <div className="gallery-card-3d__meta">
+            <div className="gallery-card-3d__id">{artwork.id}</div>
+            <div className="gallery-card-3d__cat">{artwork.category}</div>
+            <h3 className="gallery-card-3d__title">{artwork.title}</h3>
+            <p className="gallery-card-3d__hint">[ OPEN FILE ]</p>
+          </div>
         </div>
-        <div
-          style={{
-            display: 'inline-block',
-            fontSize: '10px',
-            background: 'rgba(204, 0, 0, 0.2)',
-            border: '1px solid var(--accent-red)',
-            color: 'var(--accent-red)',
-            padding: '4px 8px',
-            marginBottom: '12px',
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            fontFamily: "'Bebas Neue', sans-serif"
-          }}
-        >
-          {artwork.category}
-        </div>
-        <h3
-          style={{
-            fontSize: '20px',
-            color: 'var(--text-primary)',
-            margin: '0 0 12px 0',
-            fontFamily: "'Cinzel', serif"
-          }}
-        >
-          {artwork.title}
-        </h3>
-        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, cursor: 'pointer' }}>
-          [ CLICK TO DECLASSIFY ]
-        </p>
       </div>
     </div>
   );
