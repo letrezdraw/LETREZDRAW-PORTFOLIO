@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { publicAsset } from '../utils/publicAsset';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -107,7 +108,7 @@ export const About = () => {
             }}
           >
             <img
-              src="/artwork/profile.jpg"
+              src={publicAsset('artwork/profile.jpg')}
               alt="Profile"
               loading="lazy"
               decoding="async"

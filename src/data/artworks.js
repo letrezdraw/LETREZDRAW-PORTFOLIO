@@ -1,6 +1,7 @@
+import { publicAsset } from '../utils/publicAsset';
+
 /**
- * Art files live in /public/artwork/ (served as /artwork/...).
- * Add matching filenames, or rename entries to match your files.
+ * Art files live in `public/artwork/`. URLs respect Vite `base` (GitHub Pages project site).
  */
 export const artworks = [
   {
@@ -13,8 +14,8 @@ export const artworks = [
     tools: ['Photoshop', 'Wacom', 'Procreate'],
     description:
       'A mysterious guardian character with intricate design elements and classified appearance. This piece explores the intersection of technology and fantasy aesthetics.',
-    image: '/artwork/LTZ-ART-01.jpg',
-    imageSecondary: '/artwork/LTZ-ART-01-thumb.jpg',
+    image: publicAsset('artwork/LTZ-ART-01.jpg'),
+    imageSecondary: publicAsset('artwork/LTZ-ART-01-thumb.jpg'),
     commissionStatus: 'OPEN'
   },
   {
@@ -27,8 +28,8 @@ export const artworks = [
     tools: ['Photoshop', 'Wacom'],
     description:
       'An abstract concept piece exploring digital consciousness and neural networks through visual metaphor. Created for speculative fiction worldbuilding.',
-    image: '/artwork/LTZ-ART-02.jpg',
-    imageSecondary: '/artwork/LTZ-ART-02-thumb.jpg',
+    image: publicAsset('artwork/LTZ-ART-02.jpg'),
+    imageSecondary: publicAsset('artwork/LTZ-ART-02-thumb.jpg'),
     commissionStatus: 'OPEN'
   },
   {
@@ -41,8 +42,8 @@ export const artworks = [
     tools: ['Photoshop', 'Wacom'],
     description:
       'A classified underground facility environment design. Features layered depth and atmospheric lighting to convey classified information storage.',
-    image: '/artwork/LTZ-ART-03.jpg',
-    imageSecondary: '/artwork/LTZ-ART-03-thumb.jpg',
+    image: publicAsset('artwork/LTZ-ART-03.jpg'),
+    imageSecondary: publicAsset('artwork/LTZ-ART-03-thumb.jpg'),
     commissionStatus: 'OPEN'
   },
   {
@@ -55,8 +56,8 @@ export const artworks = [
     tools: ['Photoshop', 'Wacom'],
     description:
       'A clandestine operative character study with emphasis on mysterious demeanor and high-tech accessories.',
-    image: '/artwork/LTZ-ART-04.jpg',
-    imageSecondary: '/artwork/LTZ-ART-04-thumb.jpg',
+    image: publicAsset('artwork/LTZ-ART-04.jpg'),
+    imageSecondary: publicAsset('artwork/LTZ-ART-04-thumb.jpg'),
     commissionStatus: 'OPEN'
   },
   {
@@ -69,8 +70,8 @@ export const artworks = [
     tools: ['Photoshop', 'Wacom', '3D Base'],
     description:
       'A network visualization concept exploring interconnected data systems and classified information flows through abstract representation.',
-    image: '/artwork/LTZ-ART-05.jpg',
-    imageSecondary: '/artwork/LTZ-ART-05-thumb.jpg',
+    image: publicAsset('artwork/LTZ-ART-05.jpg'),
+    imageSecondary: publicAsset('artwork/LTZ-ART-05-thumb.jpg'),
     commissionStatus: 'OPEN'
   },
   {
@@ -83,8 +84,8 @@ export const artworks = [
     tools: ['Photoshop', 'Wacom'],
     description:
       'An interior environment depicting a classified command center with atmospheric lighting and futuristic interface design.',
-    image: '/artwork/LTZ-ART-06.jpg',
-    imageSecondary: '/artwork/LTZ-ART-06-thumb.jpg',
+    image: publicAsset('artwork/LTZ-ART-06.jpg'),
+    imageSecondary: publicAsset('artwork/LTZ-ART-06-thumb.jpg'),
     commissionStatus: 'OPEN'
   },
   {
@@ -97,8 +98,8 @@ export const artworks = [
     tools: ['Photoshop', 'Wacom'],
     description:
       'A highly classified character with augmented features and mysterious background. Represents the intersection of human and technology.',
-    image: '/artwork/LTZ-ART-07.jpg',
-    imageSecondary: '/artwork/LTZ-ART-07-thumb.jpg',
+    image: publicAsset('artwork/LTZ-ART-07.jpg'),
+    imageSecondary: publicAsset('artwork/LTZ-ART-07-thumb.jpg'),
     commissionStatus: 'OPEN'
   },
   {
@@ -111,8 +112,8 @@ export const artworks = [
     tools: ['Photoshop', 'Wacom'],
     description:
       'A surrealist concept exploring encrypted consciousness and digital dreamscapes through layered symbolism and color theory.',
-    image: '/artwork/LTZ-ART-08.jpg',
-    imageSecondary: '/artwork/LTZ-ART-08-thumb.jpg',
+    image: publicAsset('artwork/LTZ-ART-08.jpg'),
+    imageSecondary: publicAsset('artwork/LTZ-ART-08-thumb.jpg'),
     commissionStatus: 'OPEN'
   }
 ];
