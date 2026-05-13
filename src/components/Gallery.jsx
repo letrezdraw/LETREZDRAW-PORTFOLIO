@@ -28,11 +28,21 @@ export const Gallery = () => {
         if (!res.ok) throw new Error(String(res.status));
         const data = await res.json();
         if (cancelled || !Array.isArray(data)) return;
+
         const hydrated = data.map((row) => hydrateArtwork(row));
         if (hydrated.length > 0) setPieces(hydrated);
         else setPieces(fallbackArtworks);
+
+        // Ensure ScrollTrigger calculates layout after async data render
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+        });
       } catch {
         if (!cancelled) setPieces(fallbackArtworks);
+
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+        });
       }
     })();
     return () => {
@@ -221,8 +231,8 @@ export const Gallery = () => {
                 className="gallery-card-item"
                 style={{
                   minWidth: '300px',
-                  opacity: 0,
-                  transform: 'translateY(30px)'
+                  opacity: 1,
+                  transform: 'translateY(0px)'
                 }}
                 onClick={() => openArt(artwork)}
               >
@@ -268,8 +278,8 @@ export const Gallery = () => {
         <div
           className="gallery-web-node-hook"
           style={{
-            opacity: 0,
-            transform: 'translateY(24px)',
+            opacity: 1,
+            transform: 'translateY(0px)',
             maxWidth: '1100px',
             margin: '0 auto'
           }}

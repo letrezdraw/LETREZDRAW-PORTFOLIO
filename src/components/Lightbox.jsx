@@ -5,6 +5,7 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
   const overlayRef = useRef(null);
   const panelRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [hoveredExtraIdx, setHoveredExtraIdx] = useState(null);
 
   const extras = [...(artwork.extraImages || [])];
   if (extras.length === 0 && artwork.imageSecondary) {
@@ -285,23 +286,74 @@ export const Lightbox = ({ artwork, currentIndex, totalFiles, onClose, onNext, o
                 }}
               >
                 {extras.map((item, idx) => {
-                  const imgSrc = typeof item === 'string' ? item : (item.web || item.original);
-                  const imgSrcSet = typeof item === 'string' ? undefined : `${item.web || item.original} 1280w, ${item.hd || item.original} 1920w`;
+                  const isString = typeof item === 'string';
+                  const imgSrc = isString ? item : (item.web || item.original);
+                  const imgSrcSet = isString ? undefined : `${item.web || item.original} 1280w, ${item.hd || item.original} 1920w`;
+
+                  const openSrc = isString ? item : (item.hd || item.original || item.web);
+
+                  const isHovered = hoveredExtraIdx === idx;
+
                   return (
-                    <div key={`${imgSrc}-${idx}`} style={{ display: 'flex', flexDirection: 'column' }}>
-                      <img
-                        src={imgSrc}
-                        srcSet={imgSrcSet}
-                        sizes="(max-width: 768px) 100vw, 220px"
-                        alt={`Reference ${idx + 2}`}
-                        style={{
-                          width: '100%',
-                          height: '200px',
-                          border: '1px solid var(--border-color)',
-                          objectFit: 'cover',
-                          marginBottom: '10px'
-                        }}
-                      />
+                    <div
+                      key={`${imgSrc}-${idx}`}
+                      style={{ display: 'flex', flexDirection: 'column' }}
+                      onMouseEnter={() => setHoveredExtraIdx(idx)}
+                      onMouseLeave={() => setHoveredExtraIdx((v) => (v === idx ? null : v))}
+                    >
+                      <div style={{ position: 'relative', marginBottom: '10px' }}>
+                        <img
+                          src={imgSrc}
+                          srcSet={imgSrcSet}
+                          sizes="(max-width: 768px) 100vw, 220px"
+                          alt={`Reference ${idx + 2}`}
+                          style={{
+                            width: '100%',
+                            height: '200px',
+                            border: '1px solid var(--border-color)',
+                            objectFit: 'cover',
+                            display: 'block'
+                          }}
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => window.open(openSrc, '_blank')}
+                          style={{
+                            position: 'absolute',
+                            top: '12px',
+                            right: '12px',
+                            zIndex: 2,
+                            fontSize: '11px',
+                            color: 'var(--text-secondary)',
+                            background: 'rgba(0,0,0,0.55)',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '999px',
+                            padding: '8px 10px',
+                            cursor: 'pointer',
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px',
+                            opacity: isHovered ? 1 : 0,
+                            pointerEvents: isHovered ? 'auto' : 'none',
+                            transition: 'opacity 0.15s ease, transform 0.15s ease'
+                          }}
+                        >
+                          [OPEN]
+                        </button>
+
+                        <div
+                          aria-hidden
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'rgba(0,0,0,0.15)',
+                            opacity: isHovered ? 1 : 0,
+                            transition: 'opacity 0.15s ease',
+                            border: '1px solid transparent'
+                          }}
+                        />
+                      </div>
+
                       <div style={{ fontSize: '12px', color: 'var(--accent-red)', letterSpacing: '1px' }}>
                         FILE_{String(idx + 2).padStart(2, '0')}
                       </div>

@@ -17,8 +17,14 @@ export const useDeviceCapability = () => {
 
   useEffect(() => {
     // Check if mobile/tablet
-    const isMobile = /iPhone|iPad|iPod|Android|Mobile|Tablet/i.test(navigator.userAgent);
-    const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+    const isMobileUA = /iPhone|iPad|iPod|Android|Mobile|Tablet/i.test(navigator.userAgent);
+    const isTabletUA = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+
+    // Fallback to viewport width (helps in emulators/desktop UA)
+    const isSmallViewport = typeof window !== 'undefined' && window.innerWidth < 768;
+
+    const isMobile = isMobileUA || isSmallViewport;
+    const isTablet = isTabletUA || (window.innerWidth < 1024 && window.innerWidth >= 768);
     
     // Check if low power mode (iOS)
     const isLowPower = navigator.getBattery ? true : false;
