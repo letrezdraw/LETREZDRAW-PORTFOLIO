@@ -13,13 +13,38 @@
   --border-color: rgba(255,255,255,0.05);
   --border-active: rgba(212,0,0,0.7);
   --scan-line: rgba(255,255,255,0.01);
+  --glow-red: rgba(212, 0, 0, 0.45);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 52px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .button-terminal:hover {
+    transform: none;
+  }
+
+  .button-terminal::before {
+    display: none;
+  }
+}
+
+html.use-system-cursor,
+html.use-system-cursor * {
+  cursor: auto !important;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  cursor: none;
+  cursor: none !important;
 }
 
 html, body {
@@ -54,7 +79,8 @@ body::before {
   );
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.4;
+  opacity: 0.35;
+  contain: strict;
 }
 
 /* Noise Texture */
@@ -66,9 +92,10 @@ body::after {
   width: 100%;
   height: 100%;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='3' result='noise'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='%23ccc' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.03;
+  opacity: 0.025;
   pointer-events: none;
   z-index: 9998;
+  contain: strict;
 }
 
 #root {
@@ -102,6 +129,17 @@ p, span, div {
 a {
   color: var(--text-primary);
   text-decoration: none;
+  transition: color 0.2s ease, text-shadow 0.25s ease;
+}
+
+a:hover {
+  color: var(--accent-red-bright);
+  text-shadow: 0 0 12px var(--glow-red);
+}
+
+::selection {
+  background: rgba(212, 0, 0, 0.35);
+  color: #fff;
 }
 
 button {
@@ -366,14 +404,39 @@ button {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  transition: all 0.3s ease;
+  transition: border-color 0.25s ease, box-shadow 0.35s ease, background 0.25s ease, transform 0.25s ease;
   position: relative;
+  overflow: hidden;
+}
+
+.button-terminal::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(212, 0, 0, 0.12) 45%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(212, 0, 0, 0.12) 55%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: translateX(-60%);
+  transition: opacity 0.3s ease, transform 0.55s ease;
+  pointer-events: none;
+}
+
+.button-terminal:hover::before {
+  opacity: 1;
+  transform: translateX(60%);
 }
 
 .button-terminal:hover {
   border-color: var(--border-active);
   background: rgba(204, 0, 0, 0.1);
-  box-shadow: inset 0 0 8px rgba(204, 0, 0, 0.2);
+  box-shadow: inset 0 0 12px rgba(204, 0, 0, 0.22), 0 0 24px rgba(212, 0, 0, 0.12);
+  transform: translateY(-1px);
 }
 
 .button-red {

@@ -36,35 +36,42 @@ export const Gallery = () => {
     scrollToCard(newIndex);
   };
 
-  // Scroll animations
+  // Scroll-triggered reveals (cleaned up on unmount / view change)
   useEffect(() => {
-    const sectionStamp = containerRef.current?.querySelector('.section-stamp');
-    const cards = containerRef.current?.querySelectorAll('.gallery-card-item');
+    const root = containerRef.current;
+    if (!root) return undefined;
 
-    if (sectionStamp) {
-      gsap.to(sectionStamp, {
-        opacity: 1,
-        y: 0,
-        scrollTrigger: {
-          trigger: sectionStamp,
-          start: 'top 80%',
-          once: true
-        }
-      });
-    }
+    const ctx = gsap.context(() => {
+      const sectionStamp = root.querySelector('.section-stamp');
+      const cards = root.querySelectorAll('.gallery-card-item');
 
-    cards?.forEach((card, idx) => {
-      gsap.to(card, {
-        opacity: 1,
-        y: 0,
-        scrollTrigger: {
-          trigger: card,
-          start: 'top 80%',
-          once: true
-        },
-        delay: idx * 0.08
+      if (sectionStamp) {
+        gsap.to(sectionStamp, {
+          opacity: 1,
+          y: 0,
+          scrollTrigger: {
+            trigger: sectionStamp,
+            start: 'top 85%',
+            once: true
+          }
+        });
+      }
+
+      cards.forEach((card, idx) => {
+        gsap.to(card, {
+          opacity: 1,
+          y: 0,
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 88%',
+            once: true
+          },
+          delay: idx * 0.05
+        });
       });
-    });
+    }, root);
+
+    return () => ctx.revert();
   }, [viewMode]);
 
   return (
@@ -175,7 +182,7 @@ export const Gallery = () => {
               msOverflowStyle: 'none'
             }}
           >
-            {artworks.map((artwork, idx) => (
+            {artworks.map((artwork) => (
               <div
                 key={artwork.id}
                 className="gallery-card-item"
@@ -227,7 +234,7 @@ export const Gallery = () => {
       {/* List View */}
       {viewMode === 'list' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-          {artworks.map((artwork, idx) => (
+          {artworks.map((artwork) => (
             <div
               key={artwork.id}
               className="gallery-card-item"
@@ -260,6 +267,8 @@ export const Gallery = () => {
               <img
                 src={artwork.image}
                 alt={artwork.title}
+                loading="lazy"
+                decoding="async"
                 style={{
                   width: '160px',
                   height: '100px',

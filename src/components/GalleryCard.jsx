@@ -37,6 +37,8 @@ export const GalleryCard = ({ artwork }) => {
       <img
         src={artwork.image}
         alt={artwork.title}
+        loading="lazy"
+        decoding="async"
         style={{
           width: '100%',
           height: '100%',

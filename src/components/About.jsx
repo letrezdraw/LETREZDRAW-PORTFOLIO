@@ -107,8 +107,10 @@ export const About = () => {
             }}
           >
             <img
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop"
+              src="/artwork/profile.jpg"
               alt="Profile"
+              loading="lazy"
+              decoding="async"
               style={{
                 width: '100%',
                 height: '100%',

@@ -6,18 +6,15 @@ export default defineConfig({
   plugins: [react()],
   build: {
     target: 'es2020',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
     rollupOptions: {
       output: {
-        manualChunks: {
-          'three-vendor': ['three', 'postprocessing'],
-          'gsap-vendor': ['gsap'],
+        manualChunks(id) {
+          if (id.includes('node_modules/three') || id.includes('node_modules/postprocessing')) {
+            return 'three-vendor';
+          }
+          if (id.includes('node_modules/gsap')) {
+            return 'gsap-vendor';
+          }
         },
       },
     },

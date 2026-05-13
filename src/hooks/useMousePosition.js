@@ -1,16 +1,7 @@
-import { useState, useEffect } from 'react';
+import { pointer } from '../pointerStore';
 
-export const useMousePosition = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const updatePosition = (e) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', updatePosition);
-    return () => window.removeEventListener('mousemove', updatePosition);
-  }, []);
-
-  return position;
-};
+/**
+ * @deprecated for per-frame tracking — reads the shared pointer object (same reference).
+ * Does not subscribe to moves; use pointer from '../pointerStore' in rAF instead.
+ */
+export const useMousePosition = () => pointer;

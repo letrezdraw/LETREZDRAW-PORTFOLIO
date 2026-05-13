@@ -1,4 +1,5 @@
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
+import { initPointerStore } from './pointerStore';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -30,6 +31,10 @@ const usePageVisibility = () => {
 function App() {
   const [scrolled, setScrolled] = useState(false);
   const isPageVisible = usePageVisibility();
+
+  useEffect(() => {
+    return initPointerStore();
+  }, []);
 
   useEffect(() => {
     // Screen flicker effect - disable when page not visible

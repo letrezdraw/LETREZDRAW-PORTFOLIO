@@ -1,23 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { useMousePosition } from '../hooks/useMousePosition';
+import { pointer } from '../pointerStore';
+import { scrollToSection } from '../utils/scrollToSection';
 import { useDeviceCapability } from '../hooks/useDeviceCapability';
 import PixelBlast from './PixelBlast';
 
 export const Hero = () => {
   const [bootComplete, setBootComplete] = useState(false);
-  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
   const [showGlitch, setShowGlitch] = useState(false);
-  const mousePos = useMousePosition();
   const device = useDeviceCapability();
   const containerRef = useRef(null);
   const spotlightRef = useRef(null);
+  const mouseReadoutRef = useRef(null);
   const spotlightLerpRef = useRef({ x: 0, y: 0 });
-
-  // Update mouse coordinates display
-  useEffect(() => {
-    setMouseCoords({ x: mousePos.x, y: mousePos.y });
-  }, [mousePos]);
+  const containerRectRef = useRef(null);
 
   // Boot sequence animation
   useEffect(() => {
@@ -103,40 +99,60 @@ export const Hero = () => {
     return () => clearInterval(glitchInterval);
   }, [bootComplete]);
 
-  // Spotlight effect animation
+  // Spotlight + mouse readout (single rAF, no React updates per move)
   useEffect(() => {
     if (!bootComplete || !spotlightRef.current || !containerRef.current) return;
 
-    const animate = () => {
-      spotlightLerpRef.current.x += (mousePos.x - spotlightLerpRef.current.x) * 0.1;
-      spotlightLerpRef.current.y += (mousePos.y - spotlightLerpRef.current.y) * 0.1;
+    const spotlight = spotlightRef.current;
+    const container = containerRef.current;
 
-      const spotlight = spotlightRef.current;
-      const container = containerRef.current;
-      
-      if (spotlight && container) {
-        // Get container position relative to viewport
-        const rect = container.getBoundingClientRect();
-        
-        // Calculate spotlight position relative to container
+    const updateRect = () => {
+      containerRectRef.current = container.getBoundingClientRect();
+    };
+
+    updateRect();
+    spotlightLerpRef.current = { x: pointer.x, y: pointer.y };
+
+    const onResize = () => {
+      updateRect();
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+
+    let frames = 0;
+    let rafId = 0;
+    const animate = () => {
+      frames += 1;
+      if (frames % 12 === 0 || !containerRectRef.current) {
+        updateRect();
+      }
+
+      spotlightLerpRef.current.x += (pointer.x - spotlightLerpRef.current.x) * 0.12;
+      spotlightLerpRef.current.y += (pointer.y - spotlightLerpRef.current.y) * 0.12;
+
+      const rect = containerRectRef.current;
+      if (rect && rect.width > 0) {
         const relativeX = spotlightLerpRef.current.x - rect.left;
         const relativeY = spotlightLerpRef.current.y - rect.top;
-        
-        // Update CSS variables with percentages relative to container
-        // Allow values beyond 0-100 to let spotlight extend slightly beyond edges
         const xPercent = (relativeX / rect.width) * 100;
         const yPercent = (relativeY / rect.height) * 100;
-        
         spotlight.style.setProperty('--spotlight-x', `${xPercent}%`);
         spotlight.style.setProperty('--spotlight-y', `${yPercent}%`);
       }
 
-      requestAnimationFrame(animate);
+      const readout = mouseReadoutRef.current;
+      if (readout) {
+        readout.textContent = `MOUSE: X:${String(Math.round(pointer.x)).padStart(3, '0')} Y:${String(Math.round(pointer.y)).padStart(3, '0')}`;
+      }
+
+      rafId = requestAnimationFrame(animate);
     };
 
-    const frameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frameId);
-  }, [bootComplete, mousePos]);
+    rafId = requestAnimationFrame(animate);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(rafId);
+    };
+  }, [bootComplete]);
 
   return (
     <section
@@ -295,13 +311,15 @@ export const Hero = () => {
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginBottom: '64px' }}>
               <button
                 className="button-terminal"
-                onClick={() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' })}
+                type="button"
+                onClick={() => scrollToSection('gallery')}
               >
                 [ACCESS_FILES →]
               </button>
               <button
                 className="button-terminal"
-                onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+                type="button"
+                onClick={() => scrollToSection('about')}
               >
                 [VIEW_PROFILE →]
               </button>
@@ -338,6 +356,7 @@ export const Hero = () => {
 
           {/* Bottom Right - Mouse Position */}
           <div
+            ref={mouseReadoutRef}
             style={{
               position: 'absolute',
               bottom: '32px',
@@ -347,7 +366,7 @@ export const Hero = () => {
               letterSpacing: '1px'
             }}
           >
-            MOUSE: X:{String(mouseCoords.x).padStart(3, '0')} Y:{String(mouseCoords.y).padStart(3, '0')}
+            MOUSE: X:000 Y:000
           </div>
         </div>
       )}

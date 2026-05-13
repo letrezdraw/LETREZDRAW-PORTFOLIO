@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { scrollToSection } from '../utils/scrollToSection';
 
 export const Navbar = ({ scrolled }) => {
   const [time, setTime] = useState(new Date());
@@ -71,13 +72,12 @@ export const Navbar = ({ scrolled }) => {
             onClick={(e) => {
               e.preventDefault();
               const sectionMap = {
-                'FILES': 'gallery',
-                'PROFILE': 'about',
-                'CLEARANCE': 'commissions',
-                'TRANSMISSION': 'contact'
+                FILES: 'gallery',
+                PROFILE: 'about',
+                CLEARANCE: 'commissions',
+                TRANSMISSION: 'contact'
               };
-              const el = document.getElementById(sectionMap[link]);
-              el?.scrollIntoView({ behavior: 'smooth' });
+              scrollToSection(sectionMap[link]);
             }}
           >
             {link}
