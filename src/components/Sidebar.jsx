@@ -31,9 +31,13 @@ export const Sidebar = () => {
         writingMode: 'vertical-rl',
         textOrientation: 'mixed',
         fontSize: '13px',
-        color: 'var(--text-secondary)',
+        color: 'var(--accent-red)',
         letterSpacing: '2px',
-        transform: 'rotate(180deg)'
+        transform: 'rotate(180deg)',
+        transform: 'translateY(60px)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
       }}>
         LETREZDRAW
       </div>

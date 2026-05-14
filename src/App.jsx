@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { initPointerStore } from './pointerStore';
+import { useIsMobile } from './hooks/useIsMobile';
+// Desktop components
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -8,8 +10,21 @@ import { Marquee } from './components/Marquee';
 import { About } from './components/About';
 import { ClearanceHub } from './components/ClearanceHub';
 import { Network } from './components/Network';
+// Mobile components
+import { NavbarMobile } from './components/NavbarMobile';
+import { HeroMobile } from './components/HeroMobile';
+import { MarqueeMobile } from './components/MarqueeMobile';
+import { GalleryMobile } from './components/GalleryMobile';
+import { AboutMobile } from './components/AboutMobile';
+import { ClearanceHubMobile } from './components/ClearanceHubMobile';
+import { NetworkMobile } from './components/NetworkMobile';
+import { FooterMobile } from './components/FooterMobile';
+// Shared components
 import { RedString } from './components/RedString';
 import { CustomCursor } from './components/CustomCursor';
+// Data
+import { artworks as allArtworks } from './data/artworks';
+import { hydrateArtwork } from './utils/artworkUrls';
 import './index.css';
 
 // Page visibility detection for performance optimization
@@ -31,6 +46,7 @@ const usePageVisibility = () => {
 function App() {
   const [scrolled, setScrolled] = useState(false);
   const isPageVisible = usePageVisibility();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     return initPointerStore();
@@ -61,6 +77,31 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Mobile View
+  if (isMobile) {
+    const hydratedArtworks = allArtworks.map(hydrateArtwork);
+    return (
+      <div className="app-root app-root-mobile">
+        <CustomCursor />
+        <NavbarMobile />
+        <main className="app-main-mobile" style={{ marginTop: '48px' }}>
+          <HeroMobile />
+          <MarqueeMobile
+            text="◈ CHARACTER DESIGN ◈ CONCEPT ART ◈ COMMISSIONS OPEN ◈"
+            direction="left"
+            speed="slow"
+          />
+          <GalleryMobile artworks={hydratedArtworks} />
+          <AboutMobile />
+          <ClearanceHubMobile />
+          <NetworkMobile />
+          <FooterMobile />
+        </main>
+      </div>
+    );
+  }
+
+  // Desktop View
   return (
     <div className="app-root">
       {/* Custom Cursor and Red String Effects */}

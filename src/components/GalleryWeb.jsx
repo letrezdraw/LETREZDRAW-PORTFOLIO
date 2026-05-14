@@ -1,38 +1,61 @@
 import { useEffect, useRef, useState, useCallback, useMemo, memo } from 'react';
 import { pointer } from '../pointerStore';
 
-const MARGIN = 0.06;
-const DRAG_CLICK_MAX_PX = 14;
-const DRAG_CLICK_MAX_MS = 420;
-const K_NEIGHBORS = 3;
-const FLOAT_SPEED = 0.00011;
+// ============================================================================
+// CONFIGURATION & CONSTANTS
+// ============================================================================
+const DISPLAY_COUNT = 5; // Always show exactly 5 dots
+const MARGIN = 0.06; // Keep nodes away from edges
+const FLOAT_SPEED = 0.00011; // Slow organic drift speed
+const K_NEIGHBORS = 3; // Max edges per node
+const ROTATION_INTERVAL = 5000; // Switch artworks every 5s
+const DRAG_CLICK_MAX_PX = 14; // Click threshold
+const DRAG_CLICK_MAX_MS = 420; // Click threshold
 
-function hashUnit(s) {
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Seeded hash function for deterministic positioning
+ */
+function hashUnit(seed) {
   let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
     h = Math.imul(h, 16777619);
   }
   return (Math.abs(h) % 10000) / 10000;
 }
 
+/**
+ * Clamp value between bounds
+ */
 function clamp01(v, lo = MARGIN, hi = 1 - MARGIN) {
   return Math.min(hi, Math.max(lo, v));
 }
 
+/**
+ * Distance squared between two nodes (in canvas space)
+ */
 function distSq(a, b, w, h) {
   const dx = (a.nx - b.nx) * w;
   const dy = (a.ny - b.ny) * h;
   return dx * dx + dy * dy;
 }
 
+/**
+ * Compute nearest-neighbor edges
+ */
 function computeEdges(nodes, w, h) {
   const n = nodes.length;
   if (n < 2) return [];
+
   const maxD = Math.min(w, h) * 0.48;
   const maxDSq = maxD * maxD;
   const set = new Set();
 
+  // For each node, find K_NEIGHBORS closest neighbors within maxD distance
   for (let i = 0; i < n; i++) {
     const others = [];
     for (let j = 0; j < n; j++) {
@@ -54,22 +77,56 @@ function computeEdges(nodes, w, h) {
   });
 }
 
+/**
+ * Initialize nodes with deterministic positions based on artwork ID
+ */
 function initNodes(artworks) {
   return artworks.map((artwork) => {
+    // Use artwork ID to generate stable position + drift parameters
     let nx = clamp01(hashUnit(`${artwork.id}|nx`) * 0.86 + 0.07);
     let ny = clamp01(hashUnit(`${artwork.id}|ny`) * 0.86 + 0.07);
+    
+    // Add small random jitter to prevent perfect overlap
     nx = clamp01(nx + (hashUnit(`${artwork.id}|jx`) - 0.5) * 0.06);
     ny = clamp01(ny + (hashUnit(`${artwork.id}|jy`) - 0.5) * 0.06);
+
     return {
       id: artwork.id,
       artwork,
-      nx,
-      ny,
-      phx: hashUnit(`${artwork.id}|phx`) * Math.PI * 2,
-      phy: hashUnit(`${artwork.id}|phy`) * Math.PI * 2
+      nx, // normalized x (0-1)
+      ny, // normalized y (0-1)
+      phx: hashUnit(`${artwork.id}|phx`) * Math.PI * 2, // phase x (for drift)
+      phy: hashUnit(`${artwork.id}|phy`) * Math.PI * 2  // phase y
     };
   });
 }
+
+/**
+ * Seeded random selection of artworks (always exactly DISPLAY_COUNT)
+ */
+function selectRandomArtworks(allArtworks, seed) {
+  if (allArtworks.length <= DISPLAY_COUNT) {
+    return allArtworks;
+  }
+
+  const arr = allArtworks.slice();
+  
+  // Fisher-Yates shuffle with seeded LCG
+  let s = seed % 2147483647;
+  if (s <= 0) s += 2147483646;
+  const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
+
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  return arr.slice(0, DISPLAY_COUNT);
+}
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 
 export const GalleryWeb = memo(({ artworks, onOpen }) => {
   const wrapRef = useRef(null);
@@ -78,179 +135,171 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
   const dragRef = useRef(null);
   const rafRef = useRef(0);
   const pointerCanvasRef = useRef({ mx: 0, my: 0 });
+  
+  // Canvas dimensions
   const [dims, setDims] = useState({ w: 900, h: 560 });
+  const { w, h } = dims;
 
-  const DISPLAY_COUNT = 6;
-  const [displayArtworks, setDisplayArtworks] = useState(artworks ?? []);
-  // n is the number of visible nodes (<= DISPLAY_COUNT)
+  // Currently displayed artwork subset
+  const [displayArtworks, setDisplayArtworks] = useState([]);
   const n = displayArtworks.length;
 
+  // State counters for throttled updates
   const tickCounterRef = useRef(0);
-  const [tick, setTick] = useState(0);
-
-  // PERF/UX: update line connections less frequently than node drift/hover
-  // so we still reconnect to nearest dots, but avoid recomputing edges every frame.
   const edgeCounterRef = useRef(0);
+  const [tick, setTick] = useState(0);
   const [edgeVersion, setEdgeVersion] = useState(0);
 
-  // Randomly swap which artworks are represented by the 6 visible dots.
+  // ========================================================================
+  // EFFECT: Select initial artwork subset + rotate every ROTATION_INTERVAL
+  // ========================================================================
   useEffect(() => {
-    if (!Array.isArray(artworks)) return;
+    if (!Array.isArray(artworks) || artworks.length === 0) return;
 
-    const pickSubset = () => {
-      if (artworks.length <= DISPLAY_COUNT) return artworks;
+    // Initial selection using current timestamp for seed
+    const seed = Math.floor(Date.now() / 1000);
+    setDisplayArtworks(selectRandomArtworks(artworks, seed));
 
-      // Deterministic-ish shuffle per call using current time as seed.
-      const seed = Math.floor(performance.now());
-      const arr = artworks.slice();
-
-      // Fisher-Yates shuffle with a simple LCG based on seed
-      let s = seed % 2147483647;
-      if (s <= 0) s += 2147483646;
-      const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
-
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(rand() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr.slice(0, DISPLAY_COUNT);
-    };
-
-    setDisplayArtworks(pickSubset());
-
+    // If more artworks than display count, rotate selection every 5 seconds
     if (artworks.length > DISPLAY_COUNT) {
-      const id = window.setInterval(() => {
-        setDisplayArtworks(pickSubset());
-      }, 5200);
+      const intervalId = setInterval(() => {
+        const newSeed = Math.floor(Date.now() / 1000);
+        setDisplayArtworks(selectRandomArtworks(artworks, newSeed));
+      }, ROTATION_INTERVAL);
 
-      return () => window.clearInterval(id);
+      return () => clearInterval(intervalId);
     }
-
-    return undefined;
   }, [artworks]);
 
-  // When displayArtworks changes, reset node drift by reinitializing nodes below.
-  // (nodesRef is regenerated in the nodes-init effect.)
+  // ========================================================================
+  // EFFECT: Initialize or update nodes when displayArtworks changes
+  // ========================================================================
+  useEffect(() => {
+    if (!Array.isArray(displayArtworks) || displayArtworks.length === 0) return;
 
+    // First time initialization
+    if (nodesRef.current.length === 0) {
+      nodesRef.current = initNodes(displayArtworks);
+      return;
+    }
+
+    // Update: preserve node positions but swap artwork payloads
+    // This creates seamless transitions where dots don't jump around
+    const nodes = nodesRef.current;
+    const newNodes = initNodes(displayArtworks);
+    const count = Math.min(nodes.length, newNodes.length);
+
+    for (let i = 0; i < count; i++) {
+      // Update artwork data
+      nodes[i].id = newNodes[i].id;
+      nodes[i].artwork = newNodes[i].artwork;
+      // PRESERVE positions + motion for seamless transition
+      nodes[i].nx = nodes[i].nx;
+      nodes[i].ny = nodes[i].ny;
+      nodes[i].phx = nodes[i].phx;
+      nodes[i].phy = nodes[i].phy;
+    }
+  }, [displayArtworks]);
+
+  // ========================================================================
+  // EFFECT: Measure canvas and set dimensions
+  // ========================================================================
+  useEffect(() => {
+    const measure = () => {
+      const el = wrapRef.current;
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      const availW = Math.max(320, rect.width);
+      const availH = Math.max(320, rect.height);
+      const aspectRatio = 0.72;
+      const h = Math.min(availH, Math.max(420, availW * aspectRatio));
+
+      setDims({
+        w: Math.max(360, Math.floor(availW)),
+        h: Math.max(420, Math.floor(h))
+      });
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (wrapRef.current) observer.observe(wrapRef.current);
+    window.addEventListener('resize', measure, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
+
+  // ========================================================================
+  // HELPER: Throttled state updates
+  // ========================================================================
   const bump = useCallback(() => {
     tickCounterRef.current++;
 
-    // Update node renders for hover scaling at a moderate rate
+    // Update visual state every 4 frames (for hover scaling)
     if (tickCounterRef.current % 4 === 0) {
       setTick((x) => x + 1);
     }
 
-    // Update edges for "nearest neighbor" feel at a slower rate
+    // Update edge connections every 8 frames
     edgeCounterRef.current++;
     if (edgeCounterRef.current % 8 === 0) {
       setEdgeVersion((x) => x + 1);
     }
   }, []);
 
-  // Initialize nodes only once (so switching artworks doesn't reset positions).
-  // When displayArtworks changes, we keep nx/ny/phx/phy and only replace the artwork payload.
+  // ========================================================================
+  // EFFECT: Animation loop - drift nodes, track pointer
+  // ========================================================================
   useEffect(() => {
-    if (!Array.isArray(displayArtworks) || displayArtworks.length === 0) return;
+    if (!n || !w || h === 0) return;
 
-    // First time init
-    if (nodesRef.current.length === 0) {
-      nodesRef.current = initNodes(displayArtworks);
-      bump();
-      return;
-    }
-
-    // Subsequent updates: preserve node positions and motion params,
-    // but swap which artwork each dot represents.
-    const nodes = nodesRef.current;
-    const next = initNodes(displayArtworks); // to get stable motion seeds + ids, but we only copy artwork+id
-    const count = Math.min(nodes.length, next.length);
-
-    for (let i = 0; i < count; i++) {
-      nodes[i].id = next[i].id;
-      nodes[i].artwork = next[i].artwork;
-      nodes[i].nx = nodes[i].nx; // preserve
-      nodes[i].ny = nodes[i].ny; // preserve
-      nodes[i].phx = nodes[i].phx; // preserve
-      nodes[i].phy = nodes[i].phy; // preserve
-    }
-
-    bump();
-  }, [displayArtworks, bump]);
-
-  useEffect(() => {
-    const measure = () => {
-      const el = wrapRef.current;
-      if (!el) return;
-
-      const r = el.getBoundingClientRect();
-
-      // Fill available area inside the gallery section.
-      // Use whatever space the section gives us, while keeping reasonable min/max bounds.
-      const availW = Math.max(320, r.width);
-      const availH = Math.max(320, r.height);
-
-      // Original art ratio bias:
-      const idealHFromW = availW * 0.72;
-
-      const w = Math.floor(availW);
-      const h = Math.floor(Math.min(availH, Math.max(420, idealHFromW)));
-
-      setDims({
-        w: Math.max(360, w),
-        h: Math.max(420, h)
-      });
-    };
-
-    measure();
-    const ro = new ResizeObserver(measure);
-    if (wrapRef.current) ro.observe(wrapRef.current);
-
-    window.addEventListener('resize', measure);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', measure);
-    };
-  }, []);
-
-  const { w, h } = dims;
-
-  useEffect(() => {
-    if (!n || !w) return undefined;
-
-    const tick = () => {
-      const t = performance.now() * 0.001;
+    const animate = () => {
+      const time = performance.now() * 0.001; // seconds
       const nodes = nodesRef.current;
-      const drag = dragRef.current;
+      const dragNode = dragRef.current;
 
+      // Update pointer position relative to canvas
       const rect = canvasRef.current?.getBoundingClientRect();
       if (rect && rect.width > 0) {
         pointerCanvasRef.current.mx = pointer.x - rect.left;
         pointerCanvasRef.current.my = pointer.y - rect.top;
       }
 
+      // Update node positions with slow organic drift
       for (const node of nodes) {
-        if (drag && drag.id === node.id) continue;
-        const dnx = Math.sin(t * 0.31 + node.phx) * FLOAT_SPEED;
-        const dny = Math.cos(t * 0.27 + node.phy) * FLOAT_SPEED;
+        // Skip if this node is being dragged
+        if (dragNode && dragNode.id === node.id) continue;
+
+        // Sinusoidal drift using perlin-like phase
+        const dnx = Math.sin(time * 0.31 + node.phx) * FLOAT_SPEED;
+        const dny = Math.cos(time * 0.27 + node.phy) * FLOAT_SPEED;
+
         node.nx = clamp01(node.nx + dnx);
         node.ny = clamp01(node.ny + dny);
       }
 
-      rafRef.current = requestAnimationFrame(tick);
+      rafRef.current = requestAnimationFrame(animate);
       bump();
     };
 
-    rafRef.current = requestAnimationFrame(tick);
+    rafRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(rafRef.current);
   }, [n, w, h, bump]);
 
-  // Recompute edges so that lines reconnect to the nearest moving nodes.
-  // This is intentionally rate-limited via edgeVersion to avoid stutter.
+  // ========================================================================
+  // MEMOIZED: Compute edges based on current node positions
+  // ========================================================================
   const edges = useMemo(
     () => computeEdges(nodesRef.current, w, h),
-    [w, h, n, displayArtworks, edgeVersion]
+    [w, h, n, edgeVersion]
   );
 
+  // ========================================================================
+  // MEMOIZED: Background stars (decorative dust)
+  // ========================================================================
   const bgStars = useMemo(() => {
     const dots = [];
     const seed = w + h * 0.001;
@@ -264,15 +313,13 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
     return dots;
   }, [w, h]);
 
+  // ========================================================================
+  // HANDLERS: Pointer events for dragging and clicking
+  // ========================================================================
   const pointerDown = useCallback((e, nodeId) => {
     if (e.button !== 0) return;
 
-    let rect = null;
-    try {
-      rect = canvasRef.current?.getBoundingClientRect() ?? null;
-    } catch {
-      rect = null;
-    }
+    const rect = canvasRef.current?.getBoundingClientRect() ?? null;
 
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
@@ -300,13 +347,12 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
       drag.lastX = e.clientX;
       drag.lastY = e.clientY;
 
-      const rect = drag.rect;
-      if (!rect) return;
+      if (!drag.rect) return;
 
-      const nx = (e.clientX - rect.left) / rect.width;
-      const ny = (e.clientY - rect.top) / rect.height;
+      const nx = (e.clientX - drag.rect.left) / drag.rect.width;
+      const ny = (e.clientY - drag.rect.top) / drag.rect.height;
 
-      const node = nodesRef.current.find((nd) => nd.id === drag.id);
+      const node = nodesRef.current.find((n) => n.id === drag.id);
       if (node) {
         node.nx = clamp01(nx);
         node.ny = clamp01(ny);
@@ -320,14 +366,17 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
     (e, artwork) => {
       const drag = dragRef.current;
       if (!drag || e.pointerId !== drag.pointerId) return;
+
       try {
         e.currentTarget.releasePointerCapture(e.pointerId);
       } catch {
         /* ignore */
       }
-      const dt = performance.now() - drag.startT;
-      const isClick = drag.moved < DRAG_CLICK_MAX_PX && dt < DRAG_CLICK_MAX_MS;
+
+      const elapsed = performance.now() - drag.startT;
+      const isClick = drag.moved < DRAG_CLICK_MAX_PX && elapsed < DRAG_CLICK_MAX_MS;
       dragRef.current = null;
+
       if (isClick) onOpen(artwork);
       bump();
     },
@@ -336,7 +385,7 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
 
   const pointerCancel = useCallback(
     (e) => {
-      if (dragRef.current && e.pointerId === dragRef.current.pointerId) {
+      if (dragRef.current?.pointerId === e.pointerId) {
         dragRef.current = null;
         bump();
       }
@@ -344,14 +393,22 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
     [bump]
   );
 
+  // ========================================================================
+  // RENDER: Empty state
+  // ========================================================================
   if (n === 0) {
     return (
       <div className="gallery-web gallery-web--empty">
-        <p style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>No artwork nodes — add folders under public/ARTWORK/</p>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
+          Initializing constellation view...
+        </p>
       </div>
     );
   }
 
+  // ========================================================================
+  // RENDER: Main constellation view
+  // ========================================================================
   const nodes = nodesRef.current;
   const { mx, my } = pointerCanvasRef.current;
 
@@ -370,9 +427,9 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
           marginRight: 'auto'
         }}
       >
-        Constellation view — stars drift slowly. Drag a star to move it; links reconnect to the nearest neighbors. Quick click
-        opens the file.
+        5 random artworks displayed. Drag a star to reposition. Click to view details.
       </p>
+
       <div
         ref={canvasRef}
         className="gallery-web__universe"
@@ -385,7 +442,15 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
           touchAction: 'none'
         }}
       >
-        <svg className="gallery-web__svg" width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }} aria-hidden>
+        {/* SVG Layer: Background stars + connecting lines */}
+        <svg
+          className="gallery-web__svg"
+          width={w}
+          height={h}
+          viewBox={`0 0 ${w} ${h}`}
+          style={{ display: 'block' }}
+          aria-hidden
+        >
           <defs>
             <linearGradient id="const-line-grad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="var(--accent-red)" stopOpacity="0.2" />
@@ -393,9 +458,21 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
               <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0.2" />
             </linearGradient>
           </defs>
+
+          {/* Background dust */}
           {bgStars.map((s) => (
-            <circle key={s.i} cx={s.x} cy={s.y} r={s.r} className="gallery-web__dust" />
+            <circle
+              key={s.i}
+              cx={s.x}
+              cy={s.y}
+              r={s.r}
+              className="gallery-web__dust"
+              fill="var(--accent-red)"
+              opacity={s.o}
+            />
           ))}
+
+          {/* Edges between nearest neighbors */}
           {edges.map(({ a, b, key }) => {
             const na = nodes[a];
             const nb = nodes[b];
@@ -416,10 +493,13 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
           })}
         </svg>
 
+        {/* Node Layer: Interactive artwork nodes */}
         <div className="gallery-web__nodes" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
           {nodes.map((node) => {
-            const d = Math.hypot(mx - node.nx * w, my - node.ny * h);
-            const hover = Math.max(0.78, Math.min(1.12, 0.82 + (1 - Math.min(d, 200) / 200) * 0.28));
+            // Hover proximity scaling
+            const distToPointer = Math.hypot(mx - node.nx * w, my - node.ny * h);
+            const proximityFactor = Math.min(distToPointer, 200) / 200; // 0-1
+            const scale = 0.82 + (1 - proximityFactor) * 0.3; // 0.82 to 1.12
 
             return (
               <button
@@ -430,8 +510,9 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
                   position: 'absolute',
                   left: `${node.nx * 100}%`,
                   top: `${node.ny * 100}%`,
-                  transform: `translate(-50%, -50%) scale(${hover})`,
-                  pointerEvents: 'auto'
+                  transform: `translate(-50%, -50%) scale(${scale})`,
+                  pointerEvents: 'auto',
+                  transition: 'transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1)'
                 }}
                 onPointerDown={(e) => pointerDown(e, node.id)}
                 onPointerMove={pointerMove}
@@ -441,9 +522,15 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
               >
                 <span className="gallery-web__ring" />
                 <span className="gallery-web__img-wrap">
-                  <img src={node.artwork.imageThumb || node.artwork.image} alt="" draggable={false} loading="lazy" decoding="async" />
+                  <img
+                    src={node.artwork.imageThumb || node.artwork.image}
+                    alt=""
+                    draggable={false}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </span>
-                <span className="gallery-web__title">{node.artwork.title}</span>
+                <span className="gallery-web__title">{node.artwork.id}</span>
               </button>
             );
           })}
@@ -452,3 +539,5 @@ export const GalleryWeb = memo(({ artworks, onOpen }) => {
     </div>
   );
 });
+
+GalleryWeb.displayName = 'GalleryWeb';
