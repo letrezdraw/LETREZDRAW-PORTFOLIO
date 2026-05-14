@@ -28,8 +28,14 @@ function scanArtworkPlugin() {
 }
 
 // https://vite.dev/config/
+const githubRepo = process.env.GITHUB_REPOSITORY;
+const githubRepoName = githubRepo ? githubRepo.split('/')[1] : '';
+const defaultBase =
+  process.env.VITE_BASE ||
+  (githubRepoName ? `/${githubRepoName}/` : '/');
+
 export default defineConfig({
-  base: process.env.VITE_BASE || '/',
+  base: defaultBase.replace(/\/?$/, '/').replace(/\/{2,}/g, '/'),
   plugins: [scanArtworkPlugin(), react()],
   build: {
     target: 'es2020',
