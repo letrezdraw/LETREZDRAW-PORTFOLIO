@@ -48,6 +48,8 @@ function App() {
   const isPageVisible = usePageVisibility();
   const isMobile = useIsMobile();
 
+  const [mobileArtworks, setMobileArtworks] = useState([]);
+
   useEffect(() => {
     return initPointerStore();
   }, []);
@@ -55,7 +57,7 @@ function App() {
   useEffect(() => {
     // Screen flicker effect - disable when page not visible
     if (!isPageVisible) return;
-    
+
     const flickerInterval = setInterval(() => {
       if (Math.random() > 0.92) {
         document.body.style.animation = 'flicker-screen 0.08s ease';
@@ -77,9 +79,34 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Mobile artwork manifest load (hooks must not be inside conditional returns)
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const base = import.meta.env.BASE_URL || '/';
+        const url = `${base}artwork-manifest.json`.replace(/\/{2,}/g, '/');
+        const res = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`manifest fetch failed: ${res.status}`);
+
+        const manifest = await res.json();
+        const hydrated = manifest.map(hydrateArtwork);
+
+        if (!cancelled) setMobileArtworks(hydrated);
+      } catch (e) {
+        if (!cancelled) setMobileArtworks(allArtworks.map(hydrateArtwork));
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Mobile View
   if (isMobile) {
-    const hydratedArtworks = allArtworks.map(hydrateArtwork);
     return (
       <div className="app-root app-root-mobile">
         <CustomCursor />
@@ -91,7 +118,7 @@ function App() {
             direction="left"
             speed="slow"
           />
-          <GalleryMobile artworks={hydratedArtworks} />
+          <GalleryMobile artworks={mobileArtworks} />
           <AboutMobile />
           <ClearanceHubMobile />
           <NetworkMobile />
